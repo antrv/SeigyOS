@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CAAD602F-BC40-4949-A436-8312DEDDAC5E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>System</RootNamespace>
+    <AssemblyName>mscorlib</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NoStdLib>True</NoStdLib>
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+    <NoCompilerStandardLib>true</NoCompilerStandardLib>
+    <UTF8OutPut>true</UTF8OutPut>
+    <HighEntropyVA>true</HighEntropyVA>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <BaseIntermediateOutputPath>..\..\.temp\obj\mscorlib\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\.bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\.bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Attribute.cs" />
+    <Compile Include="AttributeTargets.cs" />
+    <Compile Include="AttributeUsageAttribute.cs" />
+    <Compile Include="Boolean.cs" />
+    <Compile Include="Enum.cs" />
+    <Compile Include="Exception.cs" />
+    <Compile Include="FlagsAttribute.cs" />
+    <Compile Include="Int16.cs" />
+    <Compile Include="Int32.cs" />
+    <Compile Include="NotImplementedException.cs" />
+    <Compile Include="Object.cs" />
+    <Compile Include="ObsoleteAttribute.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\ConstrainedExecution\Cer.cs" />
+    <Compile Include="Runtime\ConstrainedExecution\Consistency.cs" />
+    <Compile Include="Runtime\ConstrainedExecution\CriticalFinalizerObject.cs" />
+    <Compile Include="Runtime\ConstrainedExecution\PrePrepareMethodAttribute.cs" />
+    <Compile Include="Runtime\ConstrainedExecution\ReliabilityContractAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\AllowReversePInvokeCallsAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\AutomationProxyAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\BestFitMappingAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\CallingConvention.cs" />
+    <Compile Include="Runtime\InteropServices\CharSet.cs" />
+    <Compile Include="Runtime\InteropServices\ClassInterfaceAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ClassInterfaceType.cs" />
+    <Compile Include="Runtime\InteropServices\CoClassAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComAliasNameAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComCompatibleVersionAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComConversionLossAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComDefaultInterfaceAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComEventInterfaceAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComImportAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComInterfaceType.cs" />
+    <Compile Include="Runtime\InteropServices\ComRegisterFunctionAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComSourceInterfacesAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComUnregisterFunctionAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ComVisibleAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\DefaultCharSetAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\DefaultDllImportSearchPathsAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\DispIdAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\DllImportAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\DllImportSearchPath.cs" />
+    <Compile Include="Runtime\InteropServices\FieldOffsetAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\GuidAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\IDispatchImplAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\IDispatchImplType.cs" />
+    <Compile Include="Runtime\InteropServices\ImportedFromTypeLibAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\InAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\InterfaceTypeAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\LayoutKind.cs" />
+    <Compile Include="Runtime\InteropServices\LCIDConversionAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ManagedToNativeComInteropStubAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\MarshalAsAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\OptionalAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\OutAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\PreserveSigAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\PrimaryInteropAssemblyAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\ProgIdAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\SetWin32ContextInIDispatchAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\StructLayoutAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\TypeIdentifierAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\TypeLibFuncAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\TypeLibFuncFlags.cs" />
+    <Compile Include="Runtime\InteropServices\TypeLibImportClassAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\TypeLibTypeAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\TypeLibTypeFlags.cs" />
+    <Compile Include="Runtime\InteropServices\TypeLibVarAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\TypeLibVarFlags.cs" />
+    <Compile Include="Runtime\InteropServices\TypeLibVersionAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\UnmanagedFunctionPointerAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\UnmanagedType.cs" />
+    <Compile Include="Runtime\InteropServices\VarEnum.cs" />
+    <Compile Include="SerializableAttribute.cs" />
+    <Compile Include="String.cs" />
+    <Compile Include="SystemException.cs" />
+    <Compile Include="Type.cs" />
+    <Compile Include="ValueType.cs" />
+    <Compile Include="Void.cs" />
+    <Compile Include="__Canon.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
