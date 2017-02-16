@@ -2,10 +2,10 @@
 
 namespace System
 {
+    [ComVisible(true)]
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    [ComVisible(true)]
-    public struct Int32: IComparable, IFormattable, IConvertible, IComparable<int>, IEquatable<int>
+    public struct Byte: IComparable, IFormattable, IConvertible, IComparable<byte>, IEquatable<byte>
     {
         // TODO: members
     }

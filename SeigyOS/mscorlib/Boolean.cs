@@ -4,9 +4,8 @@ namespace System
 {
     [Serializable]
     [ComVisible(true)]
-    public struct Boolean
+    public struct Boolean: IComparable, IConvertible, IComparable<bool>, IEquatable<bool>
     {
-        // TODO: base types
         // TODO: members
     }
 }

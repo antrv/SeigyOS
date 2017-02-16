@@ -1,9 +1,9 @@
 namespace System.Runtime.InteropServices
 {
-    // ReSharper disable once InconsistentNaming
     [Obsolete("The IDispatchImplAttribute is deprecated.", false)]
     [Serializable]
     [ComVisible(true)]
+    // ReSharper disable once InconsistentNaming
     public enum IDispatchImplType
     {
         SystemDefinedImpl = 0,

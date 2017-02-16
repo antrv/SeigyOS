@@ -1,9 +1,13 @@
+using System.Runtime.InteropServices;
+
 namespace System
 {
-    public class Exception
+    [ClassInterface(ClassInterfaceType.None)]
+    [ComDefaultInterface(typeof(_Exception))]
+    [Serializable]
+    [ComVisible(true)]
+    public class Exception: ISerializable, _Exception
     {
-        // TODO: attributes
-        // TODO: base types
         // TODO: members
     }
 }

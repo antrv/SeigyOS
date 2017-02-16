@@ -1,12 +1,12 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace System
 {
     [Serializable]
     [ClassInterface(ClassInterfaceType.AutoDual)]
     [ComVisible(true)]
-    // ReSharper disable once InconsistentNaming
-    internal class __Canon
+    public abstract class Delegate: ICloneable, ISerializable
     {
+        // TODO: members
     }
 }
