@@ -38,11 +38,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Activator.cs" />
+    <Compile Include="AppDomain.cs" />
+    <Compile Include="AppDomainInitializer.cs" />
+    <Compile Include="AppDomainManager.cs" />
+    <Compile Include="AppDomainManagerInitializationOptions.cs" />
+    <Compile Include="AppDomainSetup.cs" />
+    <Compile Include="Environment.cs" />
+    <Compile Include="EnvironmentVariableTarget.cs" />
+    <Compile Include="EventHandler.cs" />
+    <Compile Include="Runtime\Hosting\ApplicationActivator.cs" />
+    <Compile Include="ApplicationId.cs" />
+    <Compile Include="ArgIterator.cs" />
     <Compile Include="ArgumentException.cs" />
     <Compile Include="ArgumentNullException.cs" />
+    <Compile Include="AssemblyLoadEventArgs.cs" />
+    <Compile Include="AssemblyLoadEventHandler.cs" />
     <Compile Include="Attribute.cs" />
     <Compile Include="AttributeTargets.cs" />
     <Compile Include="AttributeUsageAttribute.cs" />
+    <Compile Include="Base64FormattingOptions.cs" />
     <Compile Include="Boolean.cs" />
     <Compile Include="Byte.cs" />
     <Compile Include="Char.cs" />
@@ -63,6 +78,14 @@
     <Compile Include="Collections\IEnumerator.cs" />
     <Compile Include="Collections\IEqualityComparer.cs" />
     <Compile Include="Collections\IHashCodeProvider.cs" />
+    <Compile Include="ConsoleCancelEventArgs.cs" />
+    <Compile Include="ConsoleCancelEventHandler.cs" />
+    <Compile Include="ConsoleColor.cs" />
+    <Compile Include="ConsoleKey.cs" />
+    <Compile Include="ConsoleKeyInfo.cs" />
+    <Compile Include="ConsoleModifiers.cs" />
+    <Compile Include="ConsoleSpecialKey.cs" />
+    <Compile Include="Convert.cs" />
     <Compile Include="Delegate.cs" />
     <Compile Include="Double.cs" />
     <Compile Include="Enum.cs" />
@@ -70,6 +93,8 @@
     <Compile Include="Exception.cs" />
     <Compile Include="FlagsAttribute.cs" />
     <Compile Include="Guid.cs" />
+    <Compile Include="IAppDomainSetup.cs" />
+    <Compile Include="IAsyncResult.cs" />
     <Compile Include="ICloneable.cs" />
     <Compile Include="IComparable.cs" />
     <Compile Include="IConvertible.cs" />
@@ -86,6 +111,8 @@
     <Compile Include="IObserver.cs" />
     <Compile Include="IProgress.cs" />
     <Compile Include="IServiceProvider.cs" />
+    <Compile Include="LoaderOptimization.cs" />
+    <Compile Include="LoaderOptimizationAttribute.cs" />
     <Compile Include="MTAThreadAttribute.cs" />
     <Compile Include="MulticastDelegate.cs" />
     <Compile Include="NonSerializedAttribute.cs" />
@@ -164,6 +191,8 @@
     <Compile Include="Reflection\TypeFilter.cs" />
     <Compile Include="Reflection\TypeInfo.cs" />
     <Compile Include="Reflection\Assembly.cs" />
+    <Compile Include="ResolveEventArgs.cs" />
+    <Compile Include="ResolveEventHandler.cs" />
     <Compile Include="Resources\NeutralResourcesLanguageAttribute.cs" />
     <Compile Include="Resources\SatelliteContractVersionAttribute.cs" />
     <Compile Include="Resources\UltimateResourceFallbackLocation.cs" />
@@ -277,13 +306,9 @@
     <Compile Include="UnhandledExceptionEventArgs.cs" />
     <Compile Include="ValueType.cs" />
     <Compile Include="Void.cs" />
+    <Compile Include="_AppDomain.cs" />
     <Compile Include="___Template.cs" />
     <Compile Include="__Canon.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\ecma.pub">
-      <Link>ecma.pub</Link>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
