@@ -276,6 +276,11 @@
     <Compile Include="Runtime\InteropServices\_PropertyInfo.cs" />
     <Compile Include="Runtime\InteropServices\_Thread.cs" />
     <Compile Include="Runtime\InteropServices\_Type.cs" />
+    <Compile Include="Runtime\Serialization\IDeserializationCallback.cs" />
+    <Compile Include="Runtime\Serialization\ISerializable.cs" />
+    <Compile Include="Runtime\Serialization\StreamingContext.cs" />
+    <Compile Include="Runtime\Serialization\SerializationInfo.cs" />
+    <Compile Include="Runtime\Serialization\StreamingContextStates.cs" />
     <Compile Include="SByte.cs" />
     <Compile Include="Security\AllowPartiallyTrustedCallersAttribute.cs" />
     <Compile Include="Security\IEvidenceFactory.cs" />
