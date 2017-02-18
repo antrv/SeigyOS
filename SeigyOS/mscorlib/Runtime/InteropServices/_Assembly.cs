@@ -1,3 +1,6 @@
+using System.Reflection;
+using System.Security;
+
 namespace System.Runtime.InteropServices
 {
     [Guid("17156360-2f1a-384a-bc52-fde93c215c5b")]

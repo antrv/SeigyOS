@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace System.Runtime.InteropServices
 {
     [Guid("8A7C1442-A9FB-366B-80D8-4939FFA6DBE0")]
