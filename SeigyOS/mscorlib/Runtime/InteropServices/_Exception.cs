@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Security;
 
 namespace System.Runtime.InteropServices
