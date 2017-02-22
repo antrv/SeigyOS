@@ -1,12 +1,11 @@
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
-namespace System
+namespace System.Runtime.Serialization
 {
     [Serializable]
     [CLSCompliant(false)]
     [ComVisible(true)]
-    public struct IntPtr: ISerializable
+    public abstract class Formatter: IFormatter
     {
         // TODO: members
     }

@@ -1,12 +1,13 @@
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace System
 {
     [Serializable]
     [ComVisible(true)]
-    public struct IntPtr: ISerializable
+    public enum DateTimeKind
     {
-        // TODO: members
+        Unspecified = 0,
+        Utc = 1,
+        Local = 2,
     }
 }

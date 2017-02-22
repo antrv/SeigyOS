@@ -72,7 +72,7 @@ namespace System
             // We use the no throw version since we could be deserializing a pre-V4
             // exception object that may not have this entry. In such a case, we would
             // get null.
-            _watsonBuckets = (Object)info.GetValueNoThrow("WatsonBuckets", typeof(byte[]));
+            _watsonBuckets = (object)info.GetValueNoThrow("WatsonBuckets", typeof(byte[]));
 
             _safeSerializationManager = info.GetValueNoThrow("SafeSerializationManager", typeof(SafeSerializationManager)) as SafeSerializationManager;
 
@@ -102,7 +102,7 @@ namespace System
 
         public virtual IDictionary Data
         {
-            [SecuritySafeCritical] // auto-generated
+            [SecuritySafeCritical]
             get
             {
                 if (_data == null)
@@ -258,8 +258,8 @@ namespace System
                 // often created in the VM with AllocateObject instead if the managed construtor)
                 // If you are adding code to use a SafeSerializationManager from an mscorlib exception, update
                 // this assert to ensure that it fails when that exception's _safeSerializationManager is NULL 
-                Contract.Assert(((_safeSerializationManager != null) || (GetType().Assembly == typeof(object).Assembly)), 
-                                "User defined exceptions must have a valid _safeSerializationManager");
+                Contract.Assert(_safeSerializationManager != null || GetType().Assembly == typeof(object).Assembly, 
+                    "User defined exceptions must have a valid _safeSerializationManager");
             
                 // Handle serializing any transparent or partial trust subclass data
                 _safeSerializationManager.CompleteSerialization(this, info, context);
