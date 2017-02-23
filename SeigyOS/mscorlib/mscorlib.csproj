@@ -45,6 +45,8 @@
     <Compile Include="AppDomainManager.cs" />
     <Compile Include="AppDomainManagerInitializationOptions.cs" />
     <Compile Include="AppDomainSetup.cs" />
+    <Compile Include="ArgumentOutOfRangeException.cs" />
+    <Compile Include="Array.cs" />
     <Compile Include="Collections\ICollection.cs" />
     <Compile Include="Collections\IDictionary.cs" />
     <Compile Include="Collections\IDictionaryEnumerator.cs" />
@@ -84,6 +86,7 @@
     <Compile Include="Diagnostics\DebuggerBrowsableState.cs" />
     <Compile Include="Diagnostics\StackFrame.cs" />
     <Compile Include="Diagnostics\StackTrace.cs" />
+    <Compile Include="EmptyArray.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="EnvironmentVariableTarget.cs" />
     <Compile Include="EventHandler.cs" />
@@ -435,7 +438,9 @@
     <Compile Include="String.cs" />
     <Compile Include="StringComparison.cs" />
     <Compile Include="StringFreezingAttribute.cs" />
+    <Compile Include="StringSplitOptions.cs" />
     <Compile Include="SystemException.cs" />
+    <Compile Include="Text\StringBuilder.cs" />
     <Compile Include="ThreadStaticAttribute.cs" />
     <Compile Include="Type.cs" />
     <Compile Include="TypeCode.cs" />
