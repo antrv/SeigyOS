@@ -1,5 +1,4 @@
 using System.Runtime.ConstrainedExecution;
-using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security;
 
@@ -17,59 +16,26 @@ namespace System.Runtime.CompilerServices
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern object GetObjectValue(object obj);
 
-        [SecuritySafeCritical]
-        [ResourceExposure(ResourceScope.None)]
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private static extern void _RunClassConstructor(RuntimeType type);
-
         public static void RunClassConstructor(RuntimeTypeHandle type)
         {
-            _RunClassConstructor(type.GetRuntimeType());
+            throw new NotImplementedException();
         }
-
-        [SecuritySafeCritical]
-        [ResourceExposure(ResourceScope.None)]
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private static extern void _RunModuleConstructor(Reflection.RuntimeModule module);
 
         public static void RunModuleConstructor(ModuleHandle module)
         {
-            _RunModuleConstructor(module.GetRuntimeModule());
+            throw new NotImplementedException();
         }
 
-        [SecurityCritical]
-        [ResourceExposure(ResourceScope.None)]
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        private static unsafe extern void _PrepareMethod(IRuntimeMethodInfo method, IntPtr* pInstantiation, int cInstantiation);
-
-        [SecurityCritical]
-        [DllImport(JitHelpers.QCall, CharSet = CharSet.Unicode), SuppressUnmanagedCodeSecurity]
-        internal static extern void _CompileMethod(IRuntimeMethodInfo method);
-
-        // Simple (instantiation not required) method.
         [SecurityCritical]
         public static void PrepareMethod(RuntimeMethodHandle method)
         {
-            unsafe
-            {
-                _PrepareMethod(method.GetMethodInfo(), null, 0);
-            }
+            throw new NotImplementedException();
         }
 
-        // Generic method or method with generic class with specific instantiation.
         [SecurityCritical]
         public static void PrepareMethod(RuntimeMethodHandle method, RuntimeTypeHandle[] instantiation)
         {
-            unsafe
-            {
-                int length;
-                IntPtr[] instantiationHandles = RuntimeTypeHandle.CopyRuntimeTypeHandles(instantiation, out length);
-                fixed (IntPtr* pInstantiation = instantiationHandles)
-                {
-                    _PrepareMethod(method.GetMethodInfo(), pInstantiation, length);
-                    GC.KeepAlive(instantiation);
-                }
-            }
+            throw new NotImplementedException();
         }
 
         [SecurityCritical]
@@ -94,30 +60,16 @@ namespace System.Runtime.CompilerServices
 
         public static int OffsetToStringData
         {
-            // This offset is baked in by string indexer intrinsic, so there is no harm
-            // in getting it baked in here as well.
-            [Versioning.NonVersionable]
             get
             {
-                // Number of bytes from the address pointed to by a reference to
-                // a String to the first 16-bit character in the String.  Skip 
-                // over the MethodTable pointer, & String 
-                // length.  Of course, the String reference points to the memory 
-                // after the [....] block, so don't count that.  
-                // This property allows C#'s fixed statement to work on Strings.
-                // On 64 bit platforms, this should be 12 (8+4) and on 32 bit 8 (4+4).
 #if WIN32
                 return 8;
 #else
                 return 12;
-#endif // WIN32
+#endif
             }
         }
 
-        // This method ensures that there is sufficient stack to execute the average Framework function.
-        // If there is not enough stack, then it throws System.InsufficientExecutionStackException.
-        // Note: this method is not part of the CER support, and is not to be confused with ProbeForSufficientStack
-        // below.
         [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -139,8 +91,6 @@ namespace System.Runtime.CompilerServices
             ProbeForSufficientStack();
         }
 
-        // When we detect a CER with no calls, we can point the JIT to this non-probing version instead
-        // as we don't need to probe.
         [SecurityCritical]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
         // ReSharper disable once InconsistentNaming
@@ -158,12 +108,5 @@ namespace System.Runtime.CompilerServices
         [ResourceExposure(ResourceScope.None)]
         [MethodImpl(MethodImplOptions.InternalCall)]
         public static extern void ExecuteCodeWithGuaranteedCleanup(TryCode code, CleanupCode backoutCode, object userData);
-
-        [SecurityCritical]
-        [PrePrepareMethod]
-        internal static void ExecuteBackoutCodeHelper(object backoutCode, object userData, bool exceptionThrown)
-        {
-            ((CleanupCode)backoutCode)(userData, exceptionThrown);
-        }
     }
 }

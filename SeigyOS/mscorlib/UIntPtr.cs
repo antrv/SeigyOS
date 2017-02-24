@@ -6,7 +6,7 @@ namespace System
     [Serializable]
     [CLSCompliant(false)]
     [ComVisible(true)]
-    public struct IntPtr: ISerializable
+    public struct UIntPtr: ISerializable
     {
         // TODO: members
     }
