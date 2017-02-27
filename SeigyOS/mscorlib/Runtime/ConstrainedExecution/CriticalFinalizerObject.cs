@@ -1,4 +1,6 @@
 ﻿using System.Runtime.InteropServices;
+using System.Security;
+using System.Security.Permissions;
 
 namespace System.Runtime.ConstrainedExecution
 {
