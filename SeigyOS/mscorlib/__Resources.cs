@@ -40,7 +40,7 @@ namespace System
         internal const string Argument_InvalidTimeSpanStyles = "Argument_InvalidTimeSpanStyles";
         internal const string Argument_CultureNotSupported = "Argument_CultureNotSupported";
         internal const string Argument_CultureInvalidIdentifier = "Argument_CultureInvalidIdentifier";
-        internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";
+        internal const string Arithmetic_NaN = "Arithmetic_NaN";
         internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";
         internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";
         internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";

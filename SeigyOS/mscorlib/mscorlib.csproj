@@ -103,11 +103,13 @@
     <Compile Include="EnvironmentVariableTarget.cs" />
     <Compile Include="EventHandler.cs" />
     <Compile Include="Func.cs" />
+    <Compile Include="Globalization\Calendar.cs" />
     <Compile Include="Globalization\CalendarAlgorithmType.cs" />
     <Compile Include="Globalization\CalendarWeekRule.cs" />
     <Compile Include="Globalization\CompareOptions.cs" />
     <Compile Include="Globalization\CultureNotFoundException.cs" />
     <Compile Include="Globalization\CultureTypes.cs" />
+    <Compile Include="Globalization\DateTimeFormatInfo.cs" />
     <Compile Include="Globalization\DateTimeStyles.cs" />
     <Compile Include="Globalization\DaylightTime.cs" />
     <Compile Include="Globalization\DigitShapes.cs" />
@@ -116,6 +118,8 @@
     <Compile Include="Globalization\TimeSpanFormat.cs" />
     <Compile Include="Globalization\UnicodeCategory.cs" />
     <Compile Include="InvalidOperationException.cs" />
+    <Compile Include="Math.cs" />
+    <Compile Include="MidpointRounding.cs" />
     <Compile Include="ModuleHandle.cs" />
     <Compile Include="OverflowException.cs" />
     <Compile Include="Predicate.cs" />
