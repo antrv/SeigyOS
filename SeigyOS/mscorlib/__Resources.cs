@@ -41,8 +41,8 @@ namespace System
         internal const string Argument_CultureNotSupported = "Argument_CultureNotSupported";
         internal const string Argument_CultureInvalidIdentifier = "Argument_CultureInvalidIdentifier";
         internal const string Arithmetic_NaN = "Arithmetic_NaN";
-        internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";
-        internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";
+        internal const string ArgumentOutOfRange_RoundingDigits = "ArgumentOutOfRange_RoundingDigits";
+        internal const string Argument_InvalidEnumValue = "Argument_InvalidEnumValue";
         internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";
         internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";
         internal const string Arg_CannotBeNaN1 = "Arg_CannotBeNaN";
@@ -61,6 +61,16 @@ namespace System
         }
 
         internal static string GetResourceString(string resourceName, string argument)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static string GetResourceString(string resourceName, string argument1, string argument2)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static string GetResourceString(string resourceName, object argument1, object argument2)
         {
             throw new NotImplementedException();
         }
