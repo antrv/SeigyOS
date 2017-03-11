@@ -2,6 +2,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Security;
+using JetBrains.Annotations;
 
 namespace System
 {
@@ -12,7 +13,7 @@ namespace System
         private readonly string _paramName;
 
         public ArgumentException()
-            : base(__Resources.GetResourceString("Arg_ArgumentException"))
+            : base(__Resources.GetResourceString(__Resources.Arg_ArgumentException))
         {
             HResult = __HResults.COR_E_ARGUMENT;
         }
@@ -29,14 +30,14 @@ namespace System
             HResult = __HResults.COR_E_ARGUMENT;
         }
 
-        public ArgumentException(string message, string paramName, Exception innerException)
+        public ArgumentException(string message, [InvokerParameterName] string paramName, Exception innerException)
             : base(message, innerException)
         {
             _paramName = paramName;
             HResult = __HResults.COR_E_ARGUMENT;
         }
 
-        public ArgumentException(string message, string paramName)
+        public ArgumentException(string message, [InvokerParameterName] string paramName)
 
             : base(message)
         {
@@ -47,7 +48,7 @@ namespace System
         protected ArgumentException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _paramName = info.GetString("ParamName");
+            _paramName = info.GetString(nameof(ParamName));
         }
 
         public override string Message
@@ -57,7 +58,7 @@ namespace System
                 string s = base.Message;
                 if (!string.IsNullOrEmpty(_paramName))
                 {
-                    string resourceString = __Resources.GetResourceString("Arg_ParamName_Name", _paramName);
+                    string resourceString = __Resources.GetResourceString(__Resources.Arg_ParamName_Name, _paramName);
                     return s + Environment.NewLine + resourceString;
                 }
                 return s;
@@ -70,12 +71,10 @@ namespace System
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
-            {
-                throw new ArgumentNullException("info");
-            }
+                throw new ArgumentNullException(nameof(info));
             Contract.EndContractBlock();
             base.GetObjectData(info, context);
-            info.AddValue("ParamName", _paramName, typeof(string));
+            info.AddValue(nameof(ParamName), _paramName, typeof(string));
         }
     }
 }

@@ -1,4 +1,7 @@
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
+using System.Security;
+using JetBrains.Annotations;
 
 namespace System
 {
@@ -6,16 +9,34 @@ namespace System
     [Serializable]
     public class ArgumentNullException: ArgumentException
     {
-        // TODO: members
-
         public ArgumentNullException()
+            : base(__Resources.GetResourceString(__Resources.ArgumentNull_Generic))
         {
-            throw new NotImplementedException();
+            HResult = __HResults.E_POINTER;
         }
 
-        public ArgumentNullException(string paramName)
+        public ArgumentNullException([InvokerParameterName] string paramName)
+            : base(__Resources.GetResourceString(__Resources.ArgumentNull_Generic), paramName)
         {
-            throw new NotImplementedException();
+            HResult = __HResults.E_POINTER;
+        }
+
+        public ArgumentNullException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+            HResult = __HResults.E_POINTER;
+        }
+
+        public ArgumentNullException([InvokerParameterName] string paramName, string message)
+            : base(message, paramName)
+        {
+            HResult = __HResults.E_POINTER;
+        }
+
+        [SecurityCritical]
+        protected ArgumentNullException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
         }
     }
 }

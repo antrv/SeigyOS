@@ -59,8 +59,8 @@ namespace System.Globalization
         protected CultureNotFoundException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            _invalidCultureId = (int?)info.GetValue("InvalidCultureId", typeof(int?));
-            _invalidCultureName = (string)info.GetValue("InvalidCultureName", typeof(string));
+            _invalidCultureId = (int?)info.GetValue(nameof(InvalidCultureId), typeof(int?));
+            _invalidCultureName = (string)info.GetValue(nameof(InvalidCultureName), typeof(string));
         }
 
         [SecurityCritical]
@@ -70,10 +70,8 @@ namespace System.Globalization
                 throw new ArgumentNullException(nameof(info));
             Contract.EndContractBlock();
             base.GetObjectData(info, context);
-            int? invalidCultureId = null;
-            invalidCultureId = _invalidCultureId;
-            info.AddValue("InvalidCultureId", invalidCultureId, typeof(int?));
-            info.AddValue("InvalidCultureName", _invalidCultureName, typeof(string));
+            info.AddValue(nameof(InvalidCultureId), _invalidCultureId, typeof(int?));
+            info.AddValue(nameof(InvalidCultureName), _invalidCultureName, typeof(string));
         }
 
         public virtual int? InvalidCultureId => _invalidCultureId;

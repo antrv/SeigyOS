@@ -28,6 +28,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,6 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Action.cs" />
@@ -49,6 +51,7 @@
     <Compile Include="ArithmeticException.cs" />
     <Compile Include="Array.cs" />
     <Compile Include="ArrayTypeMismatchException.cs" />
+    <Compile Include="CharEnumerator.cs" />
     <Compile Include="Collections\Generic\IDictionary.cs" />
     <Compile Include="Collections\Generic\IList.cs" />
     <Compile Include="Collections\Generic\MscorlibCollectionDebugView.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="Converter.cs" />
     <Compile Include="DateTime.cs" />
     <Compile Include="DateTimeKind.cs" />
+    <Compile Include="DBNull.cs" />
     <Compile Include="Decimal.cs" />
     <Compile Include="Diagnostics\ConditionalAttribute.cs" />
     <Compile Include="Diagnostics\Contracts\Contract.cs" />
@@ -98,15 +102,20 @@
     <Compile Include="Diagnostics\DebuggerBrowsableState.cs" />
     <Compile Include="Diagnostics\StackFrame.cs" />
     <Compile Include="Diagnostics\StackTrace.cs" />
+    <Compile Include="Empty.cs" />
     <Compile Include="EmptyArray.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="EnvironmentVariableTarget.cs" />
     <Compile Include="EventHandler.cs" />
+    <Compile Include="FormatException.cs" />
+    <Compile Include="FormattableString.cs" />
     <Compile Include="Func.cs" />
     <Compile Include="Globalization\Calendar.cs" />
     <Compile Include="Globalization\CalendarAlgorithmType.cs" />
     <Compile Include="Globalization\CalendarWeekRule.cs" />
+    <Compile Include="Globalization\CharUnicodeInfo.cs" />
     <Compile Include="Globalization\CompareOptions.cs" />
+    <Compile Include="Globalization\CultureInfo.cs" />
     <Compile Include="Globalization\CultureNotFoundException.cs" />
     <Compile Include="Globalization\CultureTypes.cs" />
     <Compile Include="Globalization\DateTimeFormatInfo.cs" />
@@ -114,9 +123,11 @@
     <Compile Include="Globalization\DaylightTime.cs" />
     <Compile Include="Globalization\DigitShapes.cs" />
     <Compile Include="Globalization\GregorianCalendarTypes.cs" />
+    <Compile Include="Globalization\NumberFormatInfo.cs" />
     <Compile Include="Globalization\NumberStyles.cs" />
     <Compile Include="Globalization\TimeSpanFormat.cs" />
     <Compile Include="Globalization\UnicodeCategory.cs" />
+    <Compile Include="InvalidCastException.cs" />
     <Compile Include="InvalidOperationException.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="MidpointRounding.cs" />
@@ -566,11 +577,14 @@
     <Compile Include="ValueType.cs" />
     <Compile Include="Void.cs" />
     <Compile Include="_AppDomain.cs" />
+    <Compile Include="__Annotations.cs" />
     <Compile Include="__Constants.cs" />
+    <Compile Include="__Helpers\NumberHelper.cs" />
     <Compile Include="__HResults.cs" />
     <Compile Include="__ResourceName.cs" />
     <Compile Include="__Resources.cs" />
     <Compile Include="__ThrowHelper.cs" />
+    <Compile Include="__Helpers\CharHelper.cs" />
     <Compile Include="___Template.cs" />
     <Compile Include="__Canon.cs" />
   </ItemGroup>

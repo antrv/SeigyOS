@@ -2,6 +2,7 @@ using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Security;
+using JetBrains.Annotations;
 
 namespace System
 {
@@ -28,13 +29,13 @@ namespace System
             HResult = __HResults.COR_E_ARGUMENTOUTOFRANGE;
         }
 
-        public ArgumentOutOfRangeException(string paramName)
+        public ArgumentOutOfRangeException([InvokerParameterName] string paramName)
             : base(RangeMessage, paramName)
         {
             HResult = __HResults.COR_E_ARGUMENTOUTOFRANGE;
         }
 
-        public ArgumentOutOfRangeException(string paramName, string message)
+        public ArgumentOutOfRangeException([InvokerParameterName] string paramName, string message)
             : base(message, paramName)
         {
             HResult = __HResults.COR_E_ARGUMENTOUTOFRANGE;
@@ -46,7 +47,7 @@ namespace System
             HResult = __HResults.COR_E_ARGUMENTOUTOFRANGE;
         }
 
-        public ArgumentOutOfRangeException(string paramName, object actualValue, string message)
+        public ArgumentOutOfRangeException([InvokerParameterName] string paramName, object actualValue, string message)
             : base(message, paramName)
         {
             _actualValue = actualValue;

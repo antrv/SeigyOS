@@ -1,4 +1,7 @@
+using System.Diagnostics.Contracts;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Security;
 
 namespace System
 {
@@ -7,6 +10,190 @@ namespace System
     [ComVisible(true)]
     public struct Int64: IComparable, IFormattable, IConvertible, IComparable<long>, IEquatable<long>
     {
-        // TODO: members
+        public const long MinValue = unchecked((long)0x8000000000000000L);
+        public const long MaxValue = 0x7fffffffffffffffL;
+
+        private readonly long m_value;
+
+        public int CompareTo(object value)
+        {
+            if (value == null)
+                return 1;
+            if (value is long)
+            {
+                long i = (long)value;
+                if (m_value < i)
+                    return -1;
+                if (m_value > i)
+                    return 1;
+                return 0;
+            }
+            throw new ArgumentException(__Resources.GetResourceString(__Resources.Arg_MustBeInt64));
+        }
+
+        public int CompareTo(long value)
+        {
+            if (m_value < value)
+                return -1;
+            if (m_value > value)
+                return 1;
+            return 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is long && m_value == (long)obj;
+        }
+
+        public bool Equals(long obj)
+        {
+            return m_value == obj;
+        }
+
+        public override int GetHashCode()
+        {
+            return unchecked((int)(m_value)) ^ (int)(m_value >> 32);
+        }
+
+        [SecuritySafeCritical]
+        public override string ToString()
+        {
+            Contract.Ensures(Contract.Result<string>() != null);
+            return Number.FormatInt64(m_value, null, NumberFormatInfo.CurrentInfo);
+        }
+
+        [SecuritySafeCritical]
+        public string ToString(IFormatProvider provider)
+        {
+            Contract.Ensures(Contract.Result<string>() != null);
+            return Number.FormatInt64(m_value, null, NumberFormatInfo.GetInstance(provider));
+        }
+
+        [SecuritySafeCritical]
+        public string ToString(string format)
+        {
+            Contract.Ensures(Contract.Result<string>() != null);
+            return Number.FormatInt64(m_value, format, NumberFormatInfo.CurrentInfo);
+        }
+
+        [SecuritySafeCritical]
+        public string ToString(string format, IFormatProvider provider)
+        {
+            Contract.Ensures(Contract.Result<string>() != null);
+            return Number.FormatInt64(m_value, format, NumberFormatInfo.GetInstance(provider));
+        }
+
+        public static long Parse(string s)
+        {
+            return Number.ParseInt64(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo);
+        }
+
+        public static long Parse(string s, NumberStyles style)
+        {
+            NumberFormatInfo.ValidateParseStyleInteger(style);
+            return Number.ParseInt64(s, style, NumberFormatInfo.CurrentInfo);
+        }
+
+        public static long Parse(string s, IFormatProvider provider)
+        {
+            return Number.ParseInt64(s, NumberStyles.Integer, NumberFormatInfo.GetInstance(provider));
+        }
+
+        public static long Parse(string s, NumberStyles style, IFormatProvider provider)
+        {
+            NumberFormatInfo.ValidateParseStyleInteger(style);
+            return Number.ParseInt64(s, style, NumberFormatInfo.GetInstance(provider));
+        }
+
+        public static bool TryParse(string s, out long result)
+        {
+            return Number.TryParseInt64(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo, out result);
+        }
+
+        public static bool TryParse(string s, NumberStyles style, IFormatProvider provider, out long result)
+        {
+            NumberFormatInfo.ValidateParseStyleInteger(style);
+            return Number.TryParseInt64(s, style, NumberFormatInfo.GetInstance(provider), out result);
+        }
+
+        public TypeCode GetTypeCode()
+        {
+            return TypeCode.Int64;
+        }
+
+        bool IConvertible.ToBoolean(IFormatProvider provider)
+        {
+            return Convert.ToBoolean(m_value);
+        }
+
+        char IConvertible.ToChar(IFormatProvider provider)
+        {
+            return Convert.ToChar(m_value);
+        }
+
+        sbyte IConvertible.ToSByte(IFormatProvider provider)
+        {
+            return Convert.ToSByte(m_value);
+        }
+
+        byte IConvertible.ToByte(IFormatProvider provider)
+        {
+            return Convert.ToByte(m_value);
+        }
+
+        short IConvertible.ToInt16(IFormatProvider provider)
+        {
+            return Convert.ToInt16(m_value);
+        }
+
+        ushort IConvertible.ToUInt16(IFormatProvider provider)
+        {
+            return Convert.ToUInt16(m_value);
+        }
+
+        int IConvertible.ToInt32(IFormatProvider provider)
+        {
+            return Convert.ToInt32(m_value);
+        }
+
+        uint IConvertible.ToUInt32(IFormatProvider provider)
+        {
+            return Convert.ToUInt32(m_value);
+        }
+
+        long IConvertible.ToInt64(IFormatProvider provider)
+        {
+            return m_value;
+        }
+
+        ulong IConvertible.ToUInt64(IFormatProvider provider)
+        {
+            return Convert.ToUInt64(m_value);
+        }
+
+        float IConvertible.ToSingle(IFormatProvider provider)
+        {
+            return Convert.ToSingle(m_value);
+        }
+
+        double IConvertible.ToDouble(IFormatProvider provider)
+        {
+            return Convert.ToDouble(m_value);
+        }
+
+        decimal IConvertible.ToDecimal(IFormatProvider provider)
+        {
+            return Convert.ToDecimal(m_value);
+        }
+
+        DateTime IConvertible.ToDateTime(IFormatProvider provider)
+        {
+            throw new InvalidCastException(__Resources.GetResourceString(__Resources.InvalidCast_FromTo, "Int64", "DateTime"));
+        }
+
+        object IConvertible.ToType(Type type, IFormatProvider provider)
+        {
+            return Convert.DefaultToType((IConvertible)this, type, provider);
+        }
     }
 }
