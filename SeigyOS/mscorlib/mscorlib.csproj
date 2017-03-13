@@ -580,7 +580,12 @@
     <Compile Include="_AppDomain.cs" />
     <Compile Include="__Annotations.cs" />
     <Compile Include="__Constants.cs" />
+    <Compile Include="__Helpers\GuidParseThrowStyle.cs" />
+    <Compile Include="__Helpers\GuidResult.cs" />
+    <Compile Include="__Helpers\GuidStyles.cs" />
     <Compile Include="__Helpers\NumberHelper.cs" />
+    <Compile Include="__Helpers\ParseFailureKind.cs" />
+    <Compile Include="__Helpers\ParseNumbers.cs" />
     <Compile Include="__HResults.cs" />
     <Compile Include="__ResourceName.cs" />
     <Compile Include="__Resources.cs" />
@@ -589,7 +594,6 @@
     <Compile Include="___Template.cs" />
     <Compile Include="__Canon.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
