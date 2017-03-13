@@ -2,6 +2,7 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.__Helpers;
 
 namespace System
 {
@@ -49,14 +50,14 @@ namespace System
         public override string ToString()
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt32(_value, null, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatInt32(_value, null, NumberFormatInfo.CurrentInfo);
         }
 
         [SecuritySafeCritical]
         public string ToString(IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt32(_value, null, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatInt32(_value, null, NumberFormatInfo.GetInstance(provider));
         }
 
         public string ToString(string format)
@@ -78,9 +79,9 @@ namespace System
             if (_value < 0 && format != null && format.Length > 0 && (format[0] == 'X' || format[0] == 'x'))
             {
                 uint temp = (uint)(_value & 0x000000FF);
-                return Number.FormatUInt32(temp, format, info);
+                return NumberHelper.FormatUInt32(temp, format, info);
             }
-            return Number.FormatInt32(_value, format, info);
+            return NumberHelper.FormatInt32(_value, format, info);
         }
 
         [CLSCompliant(false)]
@@ -114,7 +115,7 @@ namespace System
             int i;
             try
             {
-                i = Number.ParseInt32(s, style, info);
+                i = NumberHelper.ParseInt32(s, style, info);
             }
             catch (OverflowException e)
             {
@@ -150,7 +151,7 @@ namespace System
         {
             result = 0;
             int i;
-            if (!Number.TryParseInt32(s, style, info, out i))
+            if (!NumberHelper.TryParseInt32(s, style, info, out i))
                 return false;
 
             if ((style & NumberStyles.AllowHexSpecifier) != 0)

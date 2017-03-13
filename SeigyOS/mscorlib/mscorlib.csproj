@@ -501,6 +501,7 @@
     <Compile Include="Runtime\Serialization\SafeSerializationEventArgs.cs" />
     <Compile Include="Runtime\Serialization\SerializationBinder.cs" />
     <Compile Include="Runtime\Serialization\SerializationEntry.cs" />
+    <Compile Include="Runtime\Serialization\SerializationException.cs" />
     <Compile Include="Runtime\Serialization\SerializationInfoEnumerator.cs" />
     <Compile Include="Runtime\Serialization\SerializationObjectManager.cs" />
     <Compile Include="Runtime\Serialization\StreamingContext.cs" />

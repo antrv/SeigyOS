@@ -2,6 +2,7 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.__Helpers;
 
 namespace System
 {
@@ -60,67 +61,67 @@ namespace System
         public override string ToString()
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatUInt32(_value, null, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatUInt32(_value, null, NumberFormatInfo.CurrentInfo);
         }
 
         [SecuritySafeCritical]
         public string ToString(IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatUInt32(_value, null, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatUInt32(_value, null, NumberFormatInfo.GetInstance(provider));
         }
 
         [SecuritySafeCritical]
         public string ToString(string format)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatUInt32(_value, format, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatUInt32(_value, format, NumberFormatInfo.CurrentInfo);
         }
 
         [SecuritySafeCritical]
         public string ToString(string format, IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatUInt32(_value, format, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatUInt32(_value, format, NumberFormatInfo.GetInstance(provider));
         }
 
         [CLSCompliant(false)]
         public static uint Parse(string s)
         {
-            return Number.ParseUInt32(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.ParseUInt32(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo);
         }
 
         [CLSCompliant(false)]
         public static uint Parse(string s, NumberStyles style)
         {
             NumberFormatInfo.ValidateParseStyleInteger(style);
-            return Number.ParseUInt32(s, style, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.ParseUInt32(s, style, NumberFormatInfo.CurrentInfo);
         }
 
         [CLSCompliant(false)]
         public static uint Parse(string s, IFormatProvider provider)
         {
-            return Number.ParseUInt32(s, NumberStyles.Integer, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.ParseUInt32(s, NumberStyles.Integer, NumberFormatInfo.GetInstance(provider));
         }
 
         [CLSCompliant(false)]
         public static uint Parse(string s, NumberStyles style, IFormatProvider provider)
         {
             NumberFormatInfo.ValidateParseStyleInteger(style);
-            return Number.ParseUInt32(s, style, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.ParseUInt32(s, style, NumberFormatInfo.GetInstance(provider));
         }
 
         [CLSCompliant(false)]
         public static bool TryParse(string s, out uint result)
         {
-            return Number.TryParseUInt32(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo, out result);
+            return NumberHelper.TryParseUInt32(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo, out result);
         }
 
         [CLSCompliant(false)]
         public static bool TryParse(string s, NumberStyles style, IFormatProvider provider, out uint result)
         {
             NumberFormatInfo.ValidateParseStyleInteger(style);
-            return Number.TryParseUInt32(s, style, NumberFormatInfo.GetInstance(provider), out result);
+            return NumberHelper.TryParseUInt32(s, style, NumberFormatInfo.GetInstance(provider), out result);
         }
 
         public TypeCode GetTypeCode()

@@ -2,6 +2,7 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.__Helpers;
 
 namespace System
 {
@@ -49,28 +50,28 @@ namespace System
         public override string ToString()
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatUInt32(_value, null, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatUInt32(_value, null, NumberFormatInfo.CurrentInfo);
         }
 
         [SecuritySafeCritical]
         public string ToString(IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatUInt32(_value, null, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatUInt32(_value, null, NumberFormatInfo.GetInstance(provider));
         }
 
         [SecuritySafeCritical]
         public string ToString(string format)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatUInt32(_value, format, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatUInt32(_value, format, NumberFormatInfo.CurrentInfo);
         }
 
         [SecuritySafeCritical]
         public string ToString(string format, IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatUInt32(_value, format, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatUInt32(_value, format, NumberFormatInfo.GetInstance(provider));
         }
 
         [CLSCompliant(false)]
@@ -104,7 +105,7 @@ namespace System
             uint i;
             try
             {
-                i = Number.ParseUInt32(s, style, info);
+                i = NumberHelper.ParseUInt32(s, style, info);
             }
             catch (OverflowException e)
             {
@@ -133,7 +134,7 @@ namespace System
         {
             result = 0;
             uint i;
-            if (!Number.TryParseUInt32(s, style, info, out i))
+            if (!NumberHelper.TryParseUInt32(s, style, info, out i))
                 return false;
             if (i > MaxValue)
                 return false;

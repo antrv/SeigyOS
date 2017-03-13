@@ -2,6 +2,7 @@ using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.__Helpers;
 
 namespace System
 {
@@ -59,61 +60,61 @@ namespace System
         public override string ToString()
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt64(m_value, null, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatInt64(m_value, null, NumberFormatInfo.CurrentInfo);
         }
 
         [SecuritySafeCritical]
         public string ToString(IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt64(m_value, null, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatInt64(m_value, null, NumberFormatInfo.GetInstance(provider));
         }
 
         [SecuritySafeCritical]
         public string ToString(string format)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt64(m_value, format, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatInt64(m_value, format, NumberFormatInfo.CurrentInfo);
         }
 
         [SecuritySafeCritical]
         public string ToString(string format, IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt64(m_value, format, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatInt64(m_value, format, NumberFormatInfo.GetInstance(provider));
         }
 
         public static long Parse(string s)
         {
-            return Number.ParseInt64(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.ParseInt64(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo);
         }
 
         public static long Parse(string s, NumberStyles style)
         {
             NumberFormatInfo.ValidateParseStyleInteger(style);
-            return Number.ParseInt64(s, style, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.ParseInt64(s, style, NumberFormatInfo.CurrentInfo);
         }
 
         public static long Parse(string s, IFormatProvider provider)
         {
-            return Number.ParseInt64(s, NumberStyles.Integer, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.ParseInt64(s, NumberStyles.Integer, NumberFormatInfo.GetInstance(provider));
         }
 
         public static long Parse(string s, NumberStyles style, IFormatProvider provider)
         {
             NumberFormatInfo.ValidateParseStyleInteger(style);
-            return Number.ParseInt64(s, style, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.ParseInt64(s, style, NumberFormatInfo.GetInstance(provider));
         }
 
         public static bool TryParse(string s, out long result)
         {
-            return Number.TryParseInt64(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo, out result);
+            return NumberHelper.TryParseInt64(s, NumberStyles.Integer, NumberFormatInfo.CurrentInfo, out result);
         }
 
         public static bool TryParse(string s, NumberStyles style, IFormatProvider provider, out long result)
         {
             NumberFormatInfo.ValidateParseStyleInteger(style);
-            return Number.TryParseInt64(s, style, NumberFormatInfo.GetInstance(provider), out result);
+            return NumberHelper.TryParseInt64(s, style, NumberFormatInfo.GetInstance(provider), out result);
         }
 
         public TypeCode GetTypeCode()

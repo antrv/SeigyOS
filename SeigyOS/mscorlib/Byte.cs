@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.__Helpers;
 
 namespace System
 {
@@ -75,7 +76,7 @@ namespace System
             int i;
             try
             {
-                i = Number.ParseInt32(s, style, info);
+                i = NumberHelper.ParseInt32(s, style, info);
             }
             catch (OverflowException e)
             {
@@ -102,7 +103,7 @@ namespace System
         {
             result = 0;
             int i;
-            if (!Number.TryParseInt32(s, style, info, out i))
+            if (!NumberHelper.TryParseInt32(s, style, info, out i))
                 return false;
             if (i < MinValue || i > MaxValue)
                 return false;
@@ -115,7 +116,7 @@ namespace System
         public override string ToString()
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt32(_value, null, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatInt32(_value, null, NumberFormatInfo.CurrentInfo);
         }
 
         [Pure]
@@ -123,7 +124,7 @@ namespace System
         public string ToString(string format)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt32(_value, format, NumberFormatInfo.CurrentInfo);
+            return NumberHelper.FormatInt32(_value, format, NumberFormatInfo.CurrentInfo);
         }
 
         [Pure]
@@ -131,7 +132,7 @@ namespace System
         public string ToString(IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt32(_value, null, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatInt32(_value, null, NumberFormatInfo.GetInstance(provider));
         }
 
         [Pure]
@@ -139,7 +140,7 @@ namespace System
         public string ToString(string format, IFormatProvider provider)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            return Number.FormatInt32(_value, format, NumberFormatInfo.GetInstance(provider));
+            return NumberHelper.FormatInt32(_value, format, NumberFormatInfo.GetInstance(provider));
         }
 
         [Pure]

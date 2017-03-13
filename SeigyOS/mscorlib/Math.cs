@@ -8,15 +8,6 @@ namespace System
 {
     public static class Math
     {
-        private static double doubleRoundLimit = 1e16d;
-
-        private const int cMaxRoundingDigits = 15;
-        private static readonly double[] _roundPower10Double = 
-        {
-            1E0, 1E1, 1E2, 1E3, 1E4, 1E5, 1E6, 1E7, 1E8,
-            1E9, 1E10, 1E11, 1E12, 1E13, 1E14, 1E15
-        };
-
         // ReSharper disable once InconsistentNaming
         public const double PI = 3.14159265358979323846;
         public const double E = 2.7182818284590452354;
@@ -98,7 +89,8 @@ namespace System
 
         public static double Round(double value, int digits)
         {
-            if ((digits < 0) || (digits > cMaxRoundingDigits))
+            const int maxRoundingDigits = 15;
+            if (digits < 0 || digits > maxRoundingDigits)
                 throw new ArgumentOutOfRangeException(nameof(digits), __Resources.GetResourceString(__Resources.ArgumentOutOfRange_RoundingDigits));
             Contract.EndContractBlock();
             return InternalRound(value, digits, MidpointRounding.ToEven);
@@ -111,7 +103,8 @@ namespace System
 
         public static double Round(double value, int digits, MidpointRounding mode)
         {
-            if ((digits < 0) || (digits > cMaxRoundingDigits))
+            const int maxRoundingDigits = 15;
+            if (digits < 0 || digits > maxRoundingDigits)
                 throw new ArgumentOutOfRangeException(nameof(digits), __Resources.GetResourceString(__Resources.ArgumentOutOfRange_RoundingDigits));
             if (mode < MidpointRounding.ToEven || mode > MidpointRounding.AwayFromZero)
                 throw new ArgumentException(__Resources.GetResourceString(__Resources.Argument_InvalidEnumValue, mode, nameof(MidpointRounding)), nameof(mode));
@@ -142,7 +135,7 @@ namespace System
         [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
         [MethodImpl(MethodImplOptions.InternalCall)]
-        private static unsafe extern double SplitFractionDouble(double* value);
+        private static extern unsafe double SplitFractionDouble(double* value);
 
         public static decimal Truncate(decimal d)
         {
@@ -199,8 +192,7 @@ namespace System
                     return double.NegativeZero;
             }
 
-            double alternativeResult;
-            alternativeResult = regularMod - (Abs(y) * Sign(x));
+            double alternativeResult = regularMod - Abs(y) * Sign(x);
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (Abs(alternativeResult) == Abs(regularMod))
             {
@@ -220,7 +212,7 @@ namespace System
         {
             if (value >= 0)
                 return value;
-                return AbsHelper(value);
+            return AbsHelper(value);
         }
 
         private static sbyte AbsHelper(sbyte value)
@@ -229,7 +221,7 @@ namespace System
             if (value == sbyte.MinValue)
                 throw new OverflowException(__Resources.GetResourceString(__Resources.Overflow_NegateTwosCompNum));
             Contract.EndContractBlock();
-            return (sbyte)(-value);
+            return (sbyte)-value;
         }
 
         public static short Abs(short value)
@@ -252,7 +244,7 @@ namespace System
         {
             if (value >= 0)
                 return value;
-                return AbsHelper(value);
+            return AbsHelper(value);
         }
 
         private static int AbsHelper(int value)
@@ -268,7 +260,7 @@ namespace System
         {
             if (value >= 0)
                 return value;
-                return AbsHelper(value);
+            return AbsHelper(value);
         }
 
         private static long AbsHelper(long value)
@@ -540,7 +532,7 @@ namespace System
 
         public static long BigMul(int a, int b)
         {
-            return ((long)a) * b;
+            return (long)a * b;
         }
 
         public static int DivRem(int a, int b, out int result)
