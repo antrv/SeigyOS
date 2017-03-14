@@ -1,21 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Security;
 using System.Text;
+using System.Threading;
 
 namespace System
 {
     [ComVisible(true)]
     [Serializable]
-    public sealed class String: IComparable, ICloneable, IConvertible, IEnumerable, IComparable<string>, IEnumerable<char>, IEquatable<string>
+    public sealed class String: IComparable, ICloneable, IConvertible, IComparable<string>, IEnumerable<char>, IEquatable<string>
     {
-        //
-        //NOTE NOTE NOTE NOTE
-        //These fields map directly onto the fields in an EE StringObject.  See object.h for the layout.
-        //
         [NonSerialized]
         private int m_stringLength;
 
@@ -34,20 +34,14 @@ namespace System
         // Leaving it uninitialized would confuse debuggers.
         //
         //We need to call the String constructor so that the compiler doesn't mark this as a literal.
-        //Marking this as a literal would mean that it doesn't show up as a field which we can access 
+        //Marking this as a literal would mean that it doesn't show up as a field which we can access
         //from native.
         public static readonly string Empty;
 
-        //
-        //Native Static Methods
-        //
-
-        // Joins an array of strings together as one string with a separator between each original string.
-        //
         public static string Join(string separator, params string[] value)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             Contract.EndContractBlock();
             return Join(separator, value, 0, value.Length);
         }
@@ -56,17 +50,15 @@ namespace System
         public static string Join(string separator, params object[] values)
         {
             if (values == null)
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             Contract.EndContractBlock();
 
             if (values.Length == 0 || values[0] == null)
-                return string.Empty;
-
+                return Empty;
             if (separator == null)
-                separator = string.Empty;
+                separator = Empty;
 
             StringBuilder result = StringBuilderCache.Acquire();
-
             string value = values[0].ToString();
             if (value != null)
                 result.Append(value);
@@ -76,7 +68,6 @@ namespace System
                 result.Append(separator);
                 if (values[i] != null)
                 {
-                    // handle the case where their ToString() override is broken
                     value = values[i].ToString();
                     if (value != null)
                         result.Append(value);
@@ -89,7 +80,7 @@ namespace System
         public static string Join<T>(string separator, IEnumerable<T> values)
         {
             if (values == null)
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
 
@@ -133,7 +124,7 @@ namespace System
         public static string Join(string separator, IEnumerable<string> values)
         {
             if (values == null)
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
 
@@ -173,22 +164,14 @@ namespace System
         private const int alignConst = 3;
 #endif
 
-        internal char FirstChar
-        {
-            get
-            {
-                return m_firstChar;
-            }
-        }
+        internal char FirstChar => m_firstChar;
 
-        // Joins an array of strings together as one string with a separator between each original string.
-        //
-        [System.Security.SecuritySafeCritical] // auto-generated
-        public unsafe static string Join(string separator, string[] value, int startIndex, int count)
+        [SecuritySafeCritical]
+        public static unsafe string Join(string separator, string[] value, int startIndex, int count)
         {
             //Range check the array
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
             if (startIndex < 0)
                 throw new ArgumentOutOfRangeException("startIndex", Environment.GetResourceString("ArgumentOutOfRange_StartIndex"));
@@ -226,7 +209,7 @@ namespace System
             jointLength += (count - 1) * separator.Length;
 
             // Note that we may not catch all overflows with this check (since we could have wrapped around the 4gb range any number of times
-            // and landed back in the positive range.) The input array might be modifed from other threads, 
+            // and landed back in the positive range.) The input array might be modifed from other threads,
             // so we have to do an overflow check before each append below anyway. Those overflows will get caught down there.
             if ((jointLength < 0) || ((jointLength + 1) < 0))
             {
@@ -257,8 +240,8 @@ namespace System
             return jointString;
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
-        private unsafe static int CompareOrdinalIgnoreCaseHelper(string strA, string strB)
+        [SecuritySafeCritical]
+        private static unsafe int CompareOrdinalIgnoreCaseHelper(string strA, string strB)
         {
             Contract.Requires(strA != null);
             Contract.Requires(strB != null);
@@ -299,26 +282,26 @@ namespace System
         }
 
         // native call to COMString::CompareOrdinalEx
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         internal static extern int nativeCompareOrdinalEx(string strA, int indexA, string strB, int indexB, int count);
 
-        //This will not work in case-insensitive mode for any character greater than 0x80.  
+        //This will not work in case-insensitive mode for any character greater than 0x80.
         //We'll throw an ArgumentException.
-        // 
-        [System.Security.SecurityCritical] // auto-generated
+        //
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        unsafe internal static extern int nativeCompareOrdinalIgnoreCaseWC(string strA, sbyte* strBBytes);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern unsafe int nativeCompareOrdinalIgnoreCaseWC(string strA, sbyte* strBBytes);
 
         //
-        // This is a helper method for the security team.  They need to uppercase some strings (guaranteed to be less 
+        // This is a helper method for the security team.  They need to uppercase some strings (guaranteed to be less
         // than 0x80) before security is fully initialized.  Without security initialized, we can't grab resources (the nlp's)
         // from the assembly.  This provides a workaround for that problem and should NOT be used anywhere else.
         //
-        [System.Security.SecuritySafeCritical] // auto-generated
-        internal unsafe static string SmallCharToUpper(string strIn)
+        [SecuritySafeCritical]
+        internal static unsafe string SmallCharToUpper(string strIn)
         {
             Contract.Requires(strIn != null);
             Contract.EndContractBlock();
@@ -360,9 +343,9 @@ namespace System
         // Search/Query methods
         //
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
-        private unsafe static bool EqualsHelper(string strA, string strB)
+        private static unsafe bool EqualsHelper(string strA, string strB)
         {
             Contract.Requires(strA != null);
             Contract.Requires(strB != null);
@@ -426,8 +409,8 @@ namespace System
             }
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
-        private unsafe static int CompareOrdinalHelper(string strA, string strB)
+        [SecuritySafeCritical]
+        private static unsafe int CompareOrdinalHelper(string strA, string strB)
         {
             Contract.Requires(strA != null);
             Contract.Requires(strB != null);
@@ -493,9 +476,9 @@ namespace System
                 }
 
                 // now go back to slower code path and do comparison on 4 bytes one time.
-                // Following code also take advantage of the fact strings will 
+                // Following code also take advantage of the fact strings will
                 // use even numbers of characters (runtime will have a extra zero at the end.)
-                // so even if length is 1 here, we can still do the comparsion.  
+                // so even if length is 1 here, we can still do the comparsion.
                 while (length > 0)
                 {
                     if (*(int*)a != *(int*)b)
@@ -536,10 +519,10 @@ namespace System
             if (str == null)
                 return false;
 
-            if (object.ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, obj))
                 return true;
 
-            if (this.Length != str.Length)
+            if (Length != str.Length)
                 return false;
 
             return EqualsHelper(this, str);
@@ -556,21 +539,21 @@ namespace System
             if (value == null)
                 return false;
 
-            if (object.ReferenceEquals(this, value))
+            if (ReferenceEquals(this, value))
                 return true;
 
-            if (this.Length != value.Length)
+            if (Length != value.Length)
                 return false;
 
             return EqualsHelper(this, value);
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public bool Equals(string value, StringComparison comparisonType)
         {
             if (comparisonType < StringComparison.CurrentCulture || comparisonType > StringComparison.OrdinalIgnoreCase)
-                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             Contract.EndContractBlock();
 
             if ((object)this == (object)value)
@@ -598,24 +581,24 @@ namespace System
                     return (CultureInfo.InvariantCulture.CompareInfo.Compare(this, value, CompareOptions.IgnoreCase) == 0);
 
                 case StringComparison.Ordinal:
-                    if (this.Length != value.Length)
+                    if (Length != value.Length)
                         return false;
                     return EqualsHelper(this, value);
 
                 case StringComparison.OrdinalIgnoreCase:
-                    if (this.Length != value.Length)
+                    if (Length != value.Length)
                         return false;
 
                     // If both strings are ASCII strings, we can take the fast path.
-                    if (this.IsAscii() && value.IsAscii())
+                    if (IsAscii() && value.IsAscii())
                     {
                         return (CompareOrdinalIgnoreCaseHelper(this, value) == 0);
                     }
-                    // Take the slow path.                                    
+                    // Take the slow path.
                     return (TextInfo.CompareOrdinalIgnoreCase(this, value) == 0);
 
                 default:
-                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
         }
 
@@ -641,11 +624,11 @@ namespace System
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static bool Equals(string a, string b, StringComparison comparisonType)
         {
             if (comparisonType < StringComparison.CurrentCulture || comparisonType > StringComparison.OrdinalIgnoreCase)
-                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             Contract.EndContractBlock();
 
             if ((object)a == (object)b)
@@ -694,7 +677,7 @@ namespace System
                     }
 
                 default:
-                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
         }
 
@@ -711,12 +694,12 @@ namespace System
         // Gets the character at a specified position.
         //
         // Spec#: Apply the precondition here using a contract assembly.  Potential perf issue.
-        [System.Runtime.CompilerServices.IndexerName("Chars")]
+        [IndexerName("Chars")]
         public extern char this[int index]
         {
             [ResourceExposure(ResourceScope.None)]
             [MethodImpl(MethodImplOptions.InternalCall)]
-            [System.Security.SecuritySafeCritical] // public member
+            [SecuritySafeCritical] // public member
             get;
         }
 
@@ -725,11 +708,11 @@ namespace System
         // startIndex + length - 1 to the character array buffer, beginning
         // at bufferStartIndex.
         //
-        [System.Security.SecuritySafeCritical] // auto-generated
-        unsafe public void CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count)
+        [SecuritySafeCritical]
+        public unsafe void CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count)
         {
             if (destination == null)
-                throw new ArgumentNullException("destination");
+                throw new ArgumentNullException(nameof(destination));
             if (count < 0)
                 throw new ArgumentOutOfRangeException("count", Environment.GetResourceString("ArgumentOutOfRange_NegativeCount"));
             if (sourceIndex < 0)
@@ -743,22 +726,22 @@ namespace System
             // Note: fixed does not like empty arrays
             if (count > 0)
             {
-                fixed (char* src = &this.m_firstChar)
+                fixed (char* src = &m_firstChar)
                 fixed (char* dest = destination)
                     wstrcpy(dest + destinationIndex, src + sourceIndex, count);
             }
         }
 
         // Returns the entire string as an array of characters.
-        [System.Security.SecuritySafeCritical] // auto-generated
-        unsafe public char[] ToCharArray()
+        [SecuritySafeCritical]
+        public unsafe char[] ToCharArray()
         {
             // <
             int length = Length;
             char[] chars = new char[length];
             if (length > 0)
             {
-                fixed (char* src = &this.m_firstChar)
+                fixed (char* src = &m_firstChar)
                 fixed (char* dest = chars)
                 {
                     wstrcpy(dest, src, length);
@@ -769,8 +752,8 @@ namespace System
 
         // Returns a substring of this string as an array of characters.
         //
-        [System.Security.SecuritySafeCritical] // auto-generated
-        unsafe public char[] ToCharArray(int startIndex, int length)
+        [SecuritySafeCritical]
+        public unsafe char[] ToCharArray(int startIndex, int length)
         {
             // Range check everything.
             if (startIndex < 0 || startIndex > Length || startIndex > Length - length)
@@ -782,7 +765,7 @@ namespace System
             char[] chars = new char[length];
             if (length > 0)
             {
-                fixed (char* src = &this.m_firstChar)
+                fixed (char* src = &m_firstChar)
                 fixed (char* dest = chars)
                 {
                     wstrcpy(dest, src + startIndex, length);
@@ -835,7 +818,7 @@ namespace System
 
         // Gets a hash code for this string.  If strings A and B are such that A.Equals(B), then
         // they will return the same hash code.
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
         public override int GetHashCode()
         {
@@ -851,7 +834,7 @@ namespace System
             {
                 fixed (char* src = this)
                 {
-                    Contract.Assert(src[this.Length] == '\0', "src[this.Length] == '\\0'");
+                    Contract.Assert(src[Length] == '\0', "src[this.Length] == '\\0'");
                     Contract.Assert(((int)src) % 4 == 0, "Managed string should start at 4 bytes boundary");
 
 #if WIN32
@@ -893,7 +876,7 @@ namespace System
 #if DEBUG
                     // We want to ensure we can change our hash function daily.
                     // This is perfectly fine as long as you don't persist the
-                    // value from GetHashCode to disk or count on String A 
+                    // value from GetHashCode to disk or count on String A
                     // hashing before string B.  Those are bugs in your code.
                     hash1 ^= ThisAssembly.DailyBuildNumber;
 #endif
@@ -904,7 +887,7 @@ namespace System
 
         // Use this if and only if you need the hashcode to not change across app domains (e.g. you have an app domain agile
         // hash table).
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
         internal int GetLegacyNonRandomizedHashCode()
         {
@@ -912,7 +895,7 @@ namespace System
             {
                 fixed (char* src = this)
                 {
-                    Contract.Assert(src[this.Length] == '\0', "src[this.Length] == '\\0'");
+                    Contract.Assert(src[Length] == '\0', "src[this.Length] == '\\0'");
                     Contract.Assert(((int)src) % 4 == 0, "Managed string should start at 4 bytes boundary");
 
 #if WIN32
@@ -954,7 +937,7 @@ namespace System
 #if DEBUG
                     // We want to ensure we can change our hash function daily.
                     // This is perfectly fine as long as you don't persist the
-                    // value from GetHashCode to disk or count on String A 
+                    // value from GetHashCode to disk or count on String A
                     // hashing before string B.  Those are bugs in your code.
                     hash1 ^= ThisAssembly.DailyBuildNumber;
 #endif
@@ -973,9 +956,9 @@ namespace System
         // Spec#: Add postcondition in a contract assembly.  Potential perf problem.
         public extern int Length
         {
-            [System.Security.SecuritySafeCritical] // auto-generated
+            [SecuritySafeCritical]
             [ResourceExposure(ResourceScope.None)]
-            [MethodImplAttribute(MethodImplOptions.InternalCall)]
+            [MethodImpl(MethodImplOptions.InternalCall)]
             get;
         }
 
@@ -1039,7 +1022,7 @@ namespace System
 
             bool omitEmptyEntries = (options == StringSplitOptions.RemoveEmptyEntries);
 
-            if ((count == 0) || (omitEmptyEntries && this.Length == 0))
+            if ((count == 0) || (omitEmptyEntries && Length == 0))
             {
                 return new string[0];
             }
@@ -1094,7 +1077,7 @@ namespace System
                 return SplitInternal((char[])null, count, options);
             }
 
-            if ((count == 0) || (omitEmptyEntries && this.Length == 0))
+            if ((count == 0) || (omitEmptyEntries && Length == 0))
             {
                 return new string[0];
             }
@@ -1122,8 +1105,8 @@ namespace System
         }
 
         // Note a few special case in this function:
-        //     If there is no separator in the string, a string array which only contains 
-        //     the original string will be returned regardless of the count. 
+        //     If there is no separator in the string, a string array which only contains
+        //     the original string will be returned regardless of the count.
         //
 
         private string[] InternalSplitKeepEmptyEntries(int[] sepList, int[] lengthList, int numReplaces, int count)
@@ -1165,15 +1148,15 @@ namespace System
         }
 
 
-        // This function will not keep the Empty String 
+        // This function will not keep the Empty String
         private string[] InternalSplitOmitEmptyEntries(int[] sepList, int[] lengthList, int numReplaces, int count)
         {
             Contract.Requires(numReplaces >= 0);
             Contract.Requires(count >= 2);
             Contract.Ensures(Contract.Result<string[]>() != null);
 
-            // Allocate array to hold items. This array may not be 
-            // filled completely in this function, we will create a 
+            // Allocate array to hold items. This array may not be
+            // filled completely in this function, we will create a
             // new array and copy string references to that new array.
 
             int maxItems = (numReplaces < count) ? (numReplaces + 1) : count;
@@ -1221,20 +1204,20 @@ namespace System
             return stringArray;
         }
 
-        //--------------------------------------------------------------------    
-        // This function returns number of the places within baseString where 
-        // instances of characters in Separator occur.         
+        //--------------------------------------------------------------------
+        // This function returns number of the places within baseString where
+        // instances of characters in Separator occur.
         // Args: separator  -- A string containing all of the split characters.
         //       sepList    -- an array of ints for split char indicies.
-        //--------------------------------------------------------------------    
-        [System.Security.SecuritySafeCritical] // auto-generated
+        //--------------------------------------------------------------------
+        [SecuritySafeCritical]
         private unsafe int MakeSeparatorList(char[] separator, ref int[] sepList)
         {
             int foundCount = 0;
 
             if (separator == null || separator.Length == 0)
             {
-                fixed (char* pwzChars = &this.m_firstChar)
+                fixed (char* pwzChars = &m_firstChar)
                 {
                     //If they passed null or an empty string, look for whitespace.
                     for (int i = 0; i < Length && foundCount < sepList.Length; i++)
@@ -1251,7 +1234,7 @@ namespace System
                 int sepListCount = sepList.Length;
                 int sepCount = separator.Length;
                 //If they passed in a string of chars, actually look for those chars.
-                fixed (char* pwzChars = &this.m_firstChar, pSepChars = separator)
+                fixed (char* pwzChars = &m_firstChar, pSepChars = separator)
                 {
                     for (int i = 0; i < Length && foundCount < sepListCount; i++)
                     {
@@ -1270,14 +1253,14 @@ namespace System
             return foundCount;
         }
 
-        //--------------------------------------------------------------------    
-        // This function returns number of the places within baseString where 
-        // instances of separator strings occur.         
+        //--------------------------------------------------------------------
+        // This function returns number of the places within baseString where
+        // instances of separator strings occur.
         // Args: separators -- An array containing all of the split strings.
         //       sepList    -- an array of ints for split string indicies.
         //       lengthList -- an array of ints for split string lengths.
-        //--------------------------------------------------------------------    
-        [System.Security.SecuritySafeCritical] // auto-generated
+        //--------------------------------------------------------------------
+        [SecuritySafeCritical]
         private unsafe int MakeSeparatorList(string[] separators, ref int[] sepList, ref int[] lengthList)
         {
             Contract.Assert(separators != null && separators.Length > 0, "separators != null && separators.Length > 0");
@@ -1286,7 +1269,7 @@ namespace System
             int sepListCount = sepList.Length;
             int sepCount = separators.Length;
 
-            fixed (char* pwzChars = &this.m_firstChar)
+            fixed (char* pwzChars = &m_firstChar)
             {
                 for (int i = 0; i < Length && foundCount < sepListCount; i++)
                 {
@@ -1320,12 +1303,12 @@ namespace System
         //
         public string Substring(int startIndex)
         {
-            return this.Substring(startIndex, Length - startIndex);
+            return Substring(startIndex, Length - startIndex);
         }
 
         // Returns a substring of this string.
         //
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public string Substring(int startIndex, int length)
         {
 
@@ -1356,7 +1339,7 @@ namespace System
                 return string.Empty;
             }
 
-            if (startIndex == 0 && length == this.Length)
+            if (startIndex == 0 && length == Length)
             {
                 return this;
             }
@@ -1364,16 +1347,16 @@ namespace System
             return InternalSubString(startIndex, length);
         }
 
-        [System.Security.SecurityCritical] // auto-generated
-        unsafe string InternalSubString(int startIndex, int length)
+        [SecurityCritical]
+        private unsafe string InternalSubString(int startIndex, int length)
         {
-            Contract.Assert(startIndex >= 0 && startIndex <= this.Length, "StartIndex is out of range!");
-            Contract.Assert(length >= 0 && startIndex <= this.Length - length, "length is out of range!");
+            Contract.Assert(startIndex >= 0 && startIndex <= Length, "StartIndex is out of range!");
+            Contract.Assert(length >= 0 && startIndex <= Length - length, "length is out of range!");
 
             string result = FastAllocateString(length);
 
             fixed (char* dest = &result.m_firstChar)
-            fixed (char* src = &this.m_firstChar)
+            fixed (char* src = &m_firstChar)
             {
                 wstrcpy(dest, src + startIndex, length);
             }
@@ -1418,33 +1401,38 @@ namespace System
         // Creates a new string with the characters copied in from ptr. If
         // ptr is null, a 0-length string (like String.Empty) is returned.
         //
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [CLSCompliant(false), MethodImplAttribute(MethodImplOptions.InternalCall)]
-        unsafe public extern String(char* value);
+        [CLSCompliant(false)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern unsafe String(char* value);
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [CLSCompliant(false), MethodImplAttribute(MethodImplOptions.InternalCall)]
-        unsafe public extern String(char* value, int startIndex, int length);
+        [CLSCompliant(false)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern unsafe String(char* value, int startIndex, int length);
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [CLSCompliant(false), MethodImplAttribute(MethodImplOptions.InternalCall)]
-        unsafe public extern String(sbyte* value);
+        [CLSCompliant(false)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern unsafe String(sbyte* value);
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [CLSCompliant(false), MethodImplAttribute(MethodImplOptions.InternalCall)]
-        unsafe public extern String(sbyte* value, int startIndex, int length);
+        [CLSCompliant(false)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern unsafe String(sbyte* value, int startIndex, int length);
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [CLSCompliant(false), MethodImplAttribute(MethodImplOptions.InternalCall)]
-        unsafe public extern String(sbyte* value, int startIndex, int length, Encoding enc);
+        [CLSCompliant(false)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        public extern unsafe String(sbyte* value, int startIndex, int length, Encoding enc);
 
-        [System.Security.SecurityCritical] // auto-generated
-        unsafe static private string CreateString(sbyte* value, int startIndex, int length, Encoding enc)
+        [SecurityCritical]
+        private static unsafe string CreateString(sbyte* value, int startIndex, int length, Encoding enc)
         {
             if (enc == null)
                 return new string(value, startIndex, length); // default to ANSI
@@ -1467,7 +1455,7 @@ namespace System
             }
             catch (NullReferenceException)
             {
-                // If we got a NullReferencException. It means the pointer or 
+                // If we got a NullReferencException. It means the pointer or
                 // the index is out of range
                 throw new ArgumentOutOfRangeException("value",
                     Environment.GetResourceString("ArgumentOutOfRange_PartialWCHAR"));
@@ -1478,8 +1466,8 @@ namespace System
 
         // Helper for encodings so they can talk to our buffer directly
         // stringLength must be the exact size we'll expect
-        [System.Security.SecurityCritical] // auto-generated
-        unsafe static internal string CreateStringFromEncoding(
+        [SecurityCritical]
+        internal static unsafe string CreateStringFromEncoding(
             byte* bytes, int byteLength, Encoding encoding)
         {
             Contract.Requires(bytes != null);
@@ -1505,8 +1493,8 @@ namespace System
             return s;
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
-        unsafe internal int ConvertToAnsi(byte* pbNativeBuffer, int cbNativeBuffer, bool fBestFit, bool fThrowOnUnmappableChar)
+        [SecuritySafeCritical]
+        internal unsafe int ConvertToAnsi(byte* pbNativeBuffer, int cbNativeBuffer, bool fBestFit, bool fThrowOnUnmappableChar)
         {
             Contract.Assert(cbNativeBuffer >= (Length + 1) * Marshal.SystemMaxDBCSCharSize, "Insufficient buffer length passed to ConvertToAnsi");
 
@@ -1518,13 +1506,13 @@ namespace System
             uint flgs = (fBestFit ? 0 : WC_NO_BEST_FIT_CHARS);
             uint DefaultCharUsed = 0;
 
-            fixed (char* pwzChar = &this.m_firstChar)
+            fixed (char* pwzChar = &m_firstChar)
             {
                 nb = Win32Native.WideCharToMultiByte(
                     CP_ACP,
                     flgs,
                     pwzChar,
-                    this.Length,
+                    Length,
                     pbNativeBuffer,
                     cbNativeBuffer,
                     IntPtr.Zero,
@@ -1553,11 +1541,11 @@ namespace System
 #endif
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public bool IsNormalized(NormalizationForm normalizationForm)
         {
 #if !FEATURE_NORM_IDNA_ONLY
-            if (this.IsFastSort())
+            if (IsFastSort())
             {
                 // If its FastSort && one of the 4 main forms, then its already normalized
                 if (normalizationForm == NormalizationForm.FormC ||
@@ -1566,7 +1554,7 @@ namespace System
                     normalizationForm == NormalizationForm.FormKD)
                     return true;
             }
-#endif // !FEATURE_NORM_IDNA_ONLY            
+#endif // !FEATURE_NORM_IDNA_ONLY
             return Normalization.IsNormalized(this, normalizationForm);
         }
 
@@ -1581,11 +1569,11 @@ namespace System
 #endif
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public string Normalize(NormalizationForm normalizationForm)
         {
 #if !FEATURE_NORM_IDNA_ONLY
-            if (this.IsAscii())
+            if (IsAscii())
             {
                 // If its FastSort && one of the 4 main forms, then its already normalized
                 if (normalizationForm == NormalizationForm.FormC ||
@@ -1594,17 +1582,17 @@ namespace System
                     normalizationForm == NormalizationForm.FormKD)
                     return this;
             }
-#endif // !FEATURE_NORM_IDNA_ONLY            
+#endif // !FEATURE_NORM_IDNA_ONLY
             return Normalization.Normalize(this, normalizationForm);
         }
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static string FastAllocateString(int length);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal static extern string FastAllocateString(int length);
 
-        [System.Security.SecuritySafeCritical] // auto-generated
-        unsafe private static void FillStringChecked(string dest, int destPos, string src)
+        [SecuritySafeCritical]
+        private static unsafe void FillStringChecked(string dest, int destPos, string src)
         {
             Contract.Requires(dest != null);
             Contract.Requires(src != null);
@@ -1625,27 +1613,27 @@ namespace System
         // be created from the characters in value between startIndex and
         // startIndex + length - 1.
         //
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern String(char[] value, int startIndex, int length);
 
         // Creates a new string from the characters in a subarray.  The new string will be
         // created from the characters in value.
         //
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern String(char[] value);
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         internal static unsafe void wstrcpy(char* dmem, char* smem, int charCount)
         {
             Buffer.Memcpy((byte*)dmem, (byte*)smem, charCount * 2); // 2 used everywhere instead of sizeof(char)
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         private string CtorCharArray(char[] value)
         {
             if (value != null && value.Length != 0)
@@ -1665,11 +1653,11 @@ namespace System
                 return string.Empty;
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         private string CtorCharArrayStartLength(char[] value, int startIndex, int length)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
             if (startIndex < 0)
                 throw new ArgumentOutOfRangeException("startIndex", Environment.GetResourceString("ArgumentOutOfRange_StartIndex"));
@@ -1698,7 +1686,7 @@ namespace System
                 return string.Empty;
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         private string CtorCharCount(char c, int count)
         {
             if (count > 0)
@@ -1747,7 +1735,7 @@ namespace System
                 throw new ArgumentOutOfRangeException("count", Environment.GetResourceString("ArgumentOutOfRange_MustBeNonNegNum", "count"));
         }
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         private static unsafe int wcslen(char* ptr)
         {
             char* end = ptr;
@@ -1782,7 +1770,7 @@ namespace System
             return count;
         }
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         private unsafe string CtorCharPtr(char* ptr)
         {
             if (ptr == null)
@@ -1812,7 +1800,7 @@ namespace System
             }
         }
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         private unsafe string CtorCharPtrStartLength(char* ptr, int startIndex, int length)
         {
             if (length < 0)
@@ -1851,9 +1839,9 @@ namespace System
             }
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern String(char c, int count);
 
         //
@@ -1889,17 +1877,17 @@ namespace System
         }
 
 
-        // Provides a more flexible function for string comparision. See StringComparison 
+        // Provides a more flexible function for string comparision. See StringComparison
         // for meaning of different comparisonType.
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static int Compare(string strA, string strB, StringComparison comparisonType)
         {
             // Single comparison to check if comparisonType is within [CurrentCulture .. OrdinalIgnoreCase]
             if ((uint)(comparisonType - StringComparison.CurrentCulture) >
                 (uint)(StringComparison.OrdinalIgnoreCase - StringComparison.CurrentCulture))
             {
-                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
             Contract.EndContractBlock();
 
@@ -1948,7 +1936,7 @@ namespace System
                     {
                         return (CompareOrdinalIgnoreCaseHelper(strA, strB));
                     }
-                    // Take the slow path.                
+                    // Take the slow path.
                     return TextInfo.CompareOrdinalIgnoreCase(strA, strB);
 
                 default:
@@ -1966,7 +1954,7 @@ namespace System
         {
             if (culture == null)
             {
-                throw new ArgumentNullException("culture");
+                throw new ArgumentNullException(nameof(culture));
             }
             Contract.EndContractBlock();
 
@@ -1986,7 +1974,7 @@ namespace System
         {
             if (culture == null)
             {
-                throw new ArgumentNullException("culture");
+                throw new ArgumentNullException(nameof(culture));
             }
             Contract.EndContractBlock();
 
@@ -2069,7 +2057,7 @@ namespace System
         {
             if (culture == null)
             {
-                throw new ArgumentNullException("culture");
+                throw new ArgumentNullException(nameof(culture));
             }
             Contract.EndContractBlock();
 
@@ -2112,7 +2100,7 @@ namespace System
         {
             if (culture == null)
             {
-                throw new ArgumentNullException("culture");
+                throw new ArgumentNullException(nameof(culture));
             }
             Contract.EndContractBlock();
 
@@ -2139,12 +2127,12 @@ namespace System
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static int Compare(string strA, int indexA, string strB, int indexB, int length, StringComparison comparisonType)
         {
             if (comparisonType < StringComparison.CurrentCulture || comparisonType > StringComparison.OrdinalIgnoreCase)
             {
-                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
             Contract.EndContractBlock();
 
@@ -2230,7 +2218,7 @@ namespace System
                     return CultureInfo.InvariantCulture.CompareInfo.Compare(strA, indexA, lengthA, strB, indexB, lengthB, CompareOptions.IgnoreCase);
 
                 case StringComparison.Ordinal:
-                    // 
+                    //
                     return nativeCompareOrdinalEx(strA, indexA, strB, indexB, length);
 
                 case StringComparison.OrdinalIgnoreCase:
@@ -2246,7 +2234,7 @@ namespace System
         // indicates the relationship. This method returns a value less than 0 if this is less than value, 0
         // if this is equal to value, or a value greater than 0
         // if this is greater than value.  Strings are considered to be
-        // greater than all non-String objects.  Note that this means sorted 
+        // greater than all non-String objects.  Note that this means sorted
         // arrays would contain nulls, other objects, then Strings in that order.
         //
         [Pure]
@@ -2305,7 +2293,7 @@ namespace System
                 return strA.m_firstChar - strB.m_firstChar;
             }
 
-            // 
+            //
             return CompareOrdinalHelper(strA, strB);
         }
 
@@ -2313,7 +2301,7 @@ namespace System
         // Compares strA and strB using an ordinal (code-point) comparison.
         //
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static int CompareOrdinal(string strA, int indexA, string strB, int indexB, int length)
         {
             if (strA == null || strB == null)
@@ -2341,7 +2329,7 @@ namespace System
         //
         // The case-sensitive and culture-sensitive option is set by options,
         // and the default culture is used.
-        //        
+        //
         [Pure]
         public bool EndsWith(string value)
         {
@@ -2349,18 +2337,18 @@ namespace System
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ComVisible(false)]
         public bool EndsWith(string value, StringComparison comparisonType)
         {
             if ((object)value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             if (comparisonType < StringComparison.CurrentCulture || comparisonType > StringComparison.OrdinalIgnoreCase)
             {
-                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
             Contract.EndContractBlock();
 
@@ -2389,14 +2377,14 @@ namespace System
                     return CultureInfo.InvariantCulture.CompareInfo.IsSuffix(this, value, CompareOptions.IgnoreCase);
 
                 case StringComparison.Ordinal:
-                    return this.Length < value.Length ? false : (nativeCompareOrdinalEx(this, this.Length - value.Length, value, 0, value.Length) == 0);
+                    return Length < value.Length ? false : (nativeCompareOrdinalEx(this, Length - value.Length, value, 0, value.Length) == 0);
 
                 case StringComparison.OrdinalIgnoreCase:
-                    return this.Length < value.Length
-                        ? false : (TextInfo.CompareOrdinalIgnoreCaseEx(this, this.Length - value.Length, value, 0, value.Length, value.Length) == 0);
+                    return Length < value.Length
+                        ? false : (TextInfo.CompareOrdinalIgnoreCaseEx(this, Length - value.Length, value, 0, value.Length, value.Length) == 0);
 
                 default:
-                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
         }
 
@@ -2405,7 +2393,7 @@ namespace System
         {
             if (null == value)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             Contract.EndContractBlock();
 
@@ -2426,7 +2414,7 @@ namespace System
         [Pure]
         internal bool EndsWith(char value)
         {
-            int thisLen = this.Length;
+            int thisLen = Length;
             if (thisLen != 0)
             {
                 if (this[thisLen - 1] == value)
@@ -2442,19 +2430,19 @@ namespace System
         [Pure]
         public int IndexOf(char value)
         {
-            return IndexOf(value, 0, this.Length);
+            return IndexOf(value, 0, Length);
         }
 
         [Pure]
         public int IndexOf(char value, int startIndex)
         {
-            return IndexOf(value, startIndex, this.Length - startIndex);
+            return IndexOf(value, startIndex, Length - startIndex);
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern int IndexOf(char value, int startIndex, int count);
 
         // Returns the index of the first occurance of any character in value in the current instance.
@@ -2463,19 +2451,19 @@ namespace System
         [Pure]
         public int IndexOfAny(char[] anyOf)
         {
-            return IndexOfAny(anyOf, 0, this.Length);
+            return IndexOfAny(anyOf, 0, Length);
         }
 
         [Pure]
         public int IndexOfAny(char[] anyOf, int startIndex)
         {
-            return IndexOfAny(anyOf, startIndex, this.Length - startIndex);
+            return IndexOfAny(anyOf, startIndex, Length - startIndex);
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern int IndexOfAny(char[] anyOf, int startIndex, int count);
 
 
@@ -2507,12 +2495,12 @@ namespace System
         [Pure]
         public int IndexOf(string value, int startIndex, int count)
         {
-            if (startIndex < 0 || startIndex > this.Length)
+            if (startIndex < 0 || startIndex > Length)
             {
                 throw new ArgumentOutOfRangeException("startIndex", Environment.GetResourceString("ArgumentOutOfRange_Index"));
             }
 
-            if (count < 0 || count > this.Length - startIndex)
+            if (count < 0 || count > Length - startIndex)
             {
                 throw new ArgumentOutOfRangeException("count", Environment.GetResourceString("ArgumentOutOfRange_Count"));
             }
@@ -2524,27 +2512,27 @@ namespace System
         [Pure]
         public int IndexOf(string value, StringComparison comparisonType)
         {
-            return IndexOf(value, 0, this.Length, comparisonType);
+            return IndexOf(value, 0, Length, comparisonType);
         }
 
         [Pure]
         public int IndexOf(string value, int startIndex, StringComparison comparisonType)
         {
-            return IndexOf(value, startIndex, this.Length - startIndex, comparisonType);
+            return IndexOf(value, startIndex, Length - startIndex, comparisonType);
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical]
+        [SecuritySafeCritical]
         public int IndexOf(string value, int startIndex, int count, StringComparison comparisonType)
         {
             // Validate inputs
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
-            if (startIndex < 0 || startIndex > this.Length)
+            if (startIndex < 0 || startIndex > Length)
                 throw new ArgumentOutOfRangeException("startIndex", Environment.GetResourceString("ArgumentOutOfRange_Index"));
 
-            if (count < 0 || startIndex > this.Length - count)
+            if (count < 0 || startIndex > Length - count)
                 throw new ArgumentOutOfRangeException("count", Environment.GetResourceString("ArgumentOutOfRange_Count"));
             Contract.EndContractBlock();
 
@@ -2566,13 +2554,13 @@ namespace System
                     return CultureInfo.InvariantCulture.CompareInfo.IndexOf(this, value, startIndex, count, CompareOptions.Ordinal);
 
                 case StringComparison.OrdinalIgnoreCase:
-                    if (value.IsAscii() && this.IsAscii())
+                    if (value.IsAscii() && IsAscii())
                         return CultureInfo.InvariantCulture.CompareInfo.IndexOf(this, value, startIndex, count, CompareOptions.IgnoreCase);
                     else
                         return TextInfo.IndexOfStringOrdinalIgnoreCase(this, value, startIndex, count);
 
                 default:
-                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
         }
 
@@ -2584,7 +2572,7 @@ namespace System
         [Pure]
         public int LastIndexOf(char value)
         {
-            return LastIndexOf(value, this.Length - 1, this.Length);
+            return LastIndexOf(value, Length - 1, Length);
         }
 
         [Pure]
@@ -2594,9 +2582,9 @@ namespace System
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern int LastIndexOf(char value, int startIndex, int count);
 
         // Returns the index of the last occurance of any character in value in the current instance.
@@ -2609,7 +2597,7 @@ namespace System
         [Pure]
         public int LastIndexOfAny(char[] anyOf)
         {
-            return LastIndexOfAny(anyOf, this.Length - 1, this.Length);
+            return LastIndexOfAny(anyOf, Length - 1, Length);
         }
 
         //ForceInline ... Jit can't recognize String.get_Length to determine that this is "fluff"
@@ -2620,9 +2608,9 @@ namespace System
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         public extern int LastIndexOfAny(char[] anyOf, int startIndex, int count);
 
 
@@ -2634,7 +2622,7 @@ namespace System
         [Pure]
         public int LastIndexOf(string value)
         {
-            return LastIndexOf(value, this.Length - 1, this.Length, StringComparison.CurrentCulture);
+            return LastIndexOf(value, Length - 1, Length, StringComparison.CurrentCulture);
         }
 
         [Pure]
@@ -2658,7 +2646,7 @@ namespace System
         [Pure]
         public int LastIndexOf(string value, StringComparison comparisonType)
         {
-            return LastIndexOf(value, this.Length - 1, this.Length, comparisonType);
+            return LastIndexOf(value, Length - 1, Length, comparisonType);
         }
 
         [Pure]
@@ -2668,23 +2656,23 @@ namespace System
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical]
+        [SecuritySafeCritical]
         public int LastIndexOf(string value, int startIndex, int count, StringComparison comparisonType)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             Contract.EndContractBlock();
 
             // Special case for 0 length input strings
-            if (this.Length == 0 && (startIndex == -1 || startIndex == 0))
+            if (Length == 0 && (startIndex == -1 || startIndex == 0))
                 return (value.Length == 0) ? 0 : -1;
 
             // Now after handling empty strings, make sure we're not out of range
-            if (startIndex < 0 || startIndex > this.Length)
+            if (startIndex < 0 || startIndex > Length)
                 throw new ArgumentOutOfRangeException("startIndex", Environment.GetResourceString("ArgumentOutOfRange_Index"));
 
             // Make sure that we allow startIndex == this.Length
-            if (startIndex == this.Length)
+            if (startIndex == Length)
             {
                 startIndex--;
                 if (count > 0)
@@ -2717,12 +2705,12 @@ namespace System
                     return CultureInfo.InvariantCulture.CompareInfo.LastIndexOf(this, value, startIndex, count, CompareOptions.Ordinal);
 
                 case StringComparison.OrdinalIgnoreCase:
-                    if (value.IsAscii() && this.IsAscii())
+                    if (value.IsAscii() && IsAscii())
                         return CultureInfo.InvariantCulture.CompareInfo.LastIndexOf(this, value, startIndex, count, CompareOptions.IgnoreCase);
                     else
                         return TextInfo.LastIndexOfStringOrdinalIgnoreCase(this, value, startIndex, count);
                 default:
-                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
         }
 
@@ -2753,9 +2741,9 @@ namespace System
         }
 
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         private extern string PadHelper(int totalWidth, char paddingChar, bool isRightPadded);
 
         // Determines whether a specified string is a prefix of the current instance
@@ -2765,25 +2753,25 @@ namespace System
         {
             if ((object)value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             Contract.EndContractBlock();
             return StartsWith(value, StringComparison.CurrentCulture);
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ComVisible(false)]
         public bool StartsWith(string value, StringComparison comparisonType)
         {
             if ((object)value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             if (comparisonType < StringComparison.CurrentCulture || comparisonType > StringComparison.OrdinalIgnoreCase)
             {
-                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
             Contract.EndContractBlock();
 
@@ -2812,14 +2800,14 @@ namespace System
                     return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(this, value, CompareOptions.IgnoreCase);
 
                 case StringComparison.Ordinal:
-                    if (this.Length < value.Length)
+                    if (Length < value.Length)
                     {
                         return false;
                     }
                     return (nativeCompareOrdinalEx(this, 0, value, 0, value.Length) == 0);
 
                 case StringComparison.OrdinalIgnoreCase:
-                    if (this.Length < value.Length)
+                    if (Length < value.Length)
                     {
                         return false;
                     }
@@ -2827,7 +2815,7 @@ namespace System
                     return (TextInfo.CompareOrdinalIgnoreCaseEx(this, 0, value, 0, value.Length, value.Length) == 0);
 
                 default:
-                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), "comparisonType");
+                    throw new ArgumentException(Environment.GetResourceString("NotSupported_StringComparison"), nameof(comparisonType));
             }
         }
 
@@ -2836,7 +2824,7 @@ namespace System
         {
             if (null == value)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
             Contract.EndContractBlock();
 
@@ -2860,7 +2848,7 @@ namespace System
         {
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
-            return this.ToLower(CultureInfo.CurrentCulture);
+            return ToLower(CultureInfo.CurrentCulture);
         }
 
         // Creates a copy of this string in lower case.  The culture is set by culture.
@@ -2869,7 +2857,7 @@ namespace System
         {
             if (culture == null)
             {
-                throw new ArgumentNullException("culture");
+                throw new ArgumentNullException(nameof(culture));
             }
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
@@ -2882,7 +2870,7 @@ namespace System
         {
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
-            return this.ToLower(CultureInfo.InvariantCulture);
+            return ToLower(CultureInfo.InvariantCulture);
         }
 
         // Creates a copy of this string in upper case.
@@ -2891,7 +2879,7 @@ namespace System
         {
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
-            return this.ToUpper(CultureInfo.CurrentCulture);
+            return ToUpper(CultureInfo.CurrentCulture);
         }
 
 
@@ -2901,7 +2889,7 @@ namespace System
         {
             if (culture == null)
             {
-                throw new ArgumentNullException("culture");
+                throw new ArgumentNullException(nameof(culture));
             }
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
@@ -2915,7 +2903,7 @@ namespace System
         {
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
-            return this.ToUpper(CultureInfo.InvariantCulture);
+            return ToUpper(CultureInfo.InvariantCulture);
         }
 
 
@@ -2972,18 +2960,18 @@ namespace System
         }
 
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         private string TrimHelper(int trimType)
         {
             //end will point to the first non-trimmed character on the right
             //start will point to the first non-trimmed character on the Left
-            int end = this.Length - 1;
+            int end = Length - 1;
             int start = 0;
 
             //Trim specified characters.
             if (trimType != TrimTail)
             {
-                for (start = 0; start < this.Length; start++)
+                for (start = 0; start < Length; start++)
                 {
                     if (!char.IsWhiteSpace(this[start]) && !IsBOMWhitespace(this[start]))
                         break;
@@ -3003,18 +2991,18 @@ namespace System
         }
 
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         private string TrimHelper(char[] trimChars, int trimType)
         {
             //end will point to the first non-trimmed character on the right
             //start will point to the first non-trimmed character on the Left
-            int end = this.Length - 1;
+            int end = Length - 1;
             int start = 0;
 
             //Trim specified characters.
             if (trimType != TrimTail)
             {
-                for (start = 0; start < this.Length; start++)
+                for (start = 0; start < Length; start++)
                 {
                     int i = 0;
                     char ch = this[start];
@@ -3054,12 +3042,12 @@ namespace System
         }
 
 
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         private string CreateTrimmedString(int start, int end)
         {
             //Create a new STRINGREF and initialize it from the range determined above.
             int len = end - start + 1;
-            if (len == this.Length)
+            if (len == Length)
             {
                 // Don't allocate a new string as the trimmed string has not changed.
                 return this;
@@ -3072,15 +3060,15 @@ namespace System
             return InternalSubString(start, len);
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public string Insert(int startIndex, string value)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
-            if (startIndex < 0 || startIndex > this.Length)
-                throw new ArgumentOutOfRangeException("startIndex");
+                throw new ArgumentNullException(nameof(value));
+            if (startIndex < 0 || startIndex > Length)
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
             Contract.Ensures(Contract.Result<string>() != null);
-            Contract.Ensures(Contract.Result<string>().Length == this.Length + value.Length);
+            Contract.Ensures(Contract.Result<string>().Length == Length + value.Length);
             Contract.EndContractBlock();
             int oldLength = Length;
             int insertLength = value.Length;
@@ -3109,15 +3097,15 @@ namespace System
 
         // Replaces all instances of oldChar with newChar.
         //
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         private extern string ReplaceInternal(char oldChar, char newChar);
 
         public string Replace(char oldChar, char newChar)
         {
             Contract.Ensures(Contract.Result<string>() != null);
-            Contract.Ensures(Contract.Result<string>().Length == this.Length);
+            Contract.Ensures(Contract.Result<string>().Length == Length);
             Contract.EndContractBlock();
 
             return ReplaceInternal(oldChar, newChar);
@@ -3125,15 +3113,15 @@ namespace System
 
         // This method contains the same functionality as StringBuilder Replace. The only difference is that
         // a new String has to be allocated since Strings are immutable
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         private extern string ReplaceInternal(string oldValue, string newValue);
 
         public string Replace(string oldValue, string newValue)
         {
             if (oldValue == null)
-                throw new ArgumentNullException("oldValue");
+                throw new ArgumentNullException(nameof(oldValue));
             // Note that if newValue is null, we treat it like String.Empty.
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
@@ -3160,7 +3148,7 @@ namespace System
             }
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public string Remove(int startIndex, int count)
         {
             if (startIndex < 0)
@@ -3173,7 +3161,7 @@ namespace System
                 throw new ArgumentOutOfRangeException("count",
                     Environment.GetResourceString("ArgumentOutOfRange_IndexCount"));
             Contract.Ensures(Contract.Result<string>() != null);
-            Contract.Ensures(Contract.Result<string>().Length == this.Length - count);
+            Contract.Ensures(Contract.Result<string>().Length == Length - count);
             Contract.EndContractBlock();
             int newLength = Length - count;
             if (newLength == 0)
@@ -3193,7 +3181,7 @@ namespace System
             return result;
         }
 
-        // a remove that just takes a startindex. 
+        // a remove that just takes a startindex.
         public string Remove(int startIndex)
         {
             if (startIndex < 0)
@@ -3281,7 +3269,7 @@ namespace System
         private static string FormatHelper(IFormatProvider provider, string format, ParamsArray args)
         {
             if (format == null)
-                throw new ArgumentNullException("format");
+                throw new ArgumentNullException(nameof(format));
 
             return StringBuilderCache.GetStringAndRelease(
                 StringBuilderCache
@@ -3289,12 +3277,12 @@ namespace System
                     .AppendFormatHelper(provider, format, args));
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
-        unsafe public static string Copy(string str)
+        [SecuritySafeCritical]
+        public static unsafe string Copy(string str)
         {
             if (str == null)
             {
-                throw new ArgumentNullException("str");
+                throw new ArgumentNullException(nameof(str));
             }
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
@@ -3398,7 +3386,7 @@ namespace System
         {
             if (args == null)
             {
-                throw new ArgumentNullException("args");
+                throw new ArgumentNullException(nameof(args));
             }
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
@@ -3426,7 +3414,7 @@ namespace System
         public static string Concat<T>(IEnumerable<T> values)
         {
             if (values == null)
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
 
@@ -3453,7 +3441,7 @@ namespace System
         public static string Concat(IEnumerable<string> values)
         {
             if (values == null)
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             Contract.Ensures(Contract.Result<string>() != null);
             Contract.EndContractBlock();
 
@@ -3472,7 +3460,7 @@ namespace System
         }
 
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static string Concat(string str0, string str1)
         {
             Contract.Ensures(Contract.Result<string>() != null);
@@ -3505,7 +3493,7 @@ namespace System
             return result;
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static string Concat(string str0, string str1, string str2)
         {
             Contract.Ensures(Contract.Result<string>() != null);
@@ -3545,7 +3533,7 @@ namespace System
             return result;
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static string Concat(string str0, string str1, string str2, string str3)
         {
             Contract.Ensures(Contract.Result<string>() != null);
@@ -3592,7 +3580,7 @@ namespace System
             return result;
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         private static string ConcatArray(string[] values, int totalLength)
         {
             string result = FastAllocateString(totalLength);
@@ -3613,7 +3601,7 @@ namespace System
         public static string Concat(params string[] values)
         {
             if (values == null)
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
             Contract.Ensures(Contract.Result<string>() != null);
             // Spec#: Consider a postcondition saying the length of this string == the sum of each string in array
             Contract.EndContractBlock();
@@ -3637,12 +3625,12 @@ namespace System
             return ConcatArray(internalValues, totalLength);
         }
 
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static string Intern(string str)
         {
             if (str == null)
             {
-                throw new ArgumentNullException("str");
+                throw new ArgumentNullException(nameof(str));
             }
             Contract.Ensures(Contract.Result<string>().Length == str.Length);
             Contract.Ensures(str.Equals(Contract.Result<string>()));
@@ -3652,12 +3640,12 @@ namespace System
         }
 
         [Pure]
-        [System.Security.SecuritySafeCritical] // auto-generated
+        [SecuritySafeCritical]
         public static string IsInterned(string str)
         {
             if (str == null)
             {
-                throw new ArgumentNullException("str");
+                throw new ArgumentNullException(nameof(str));
             }
             Contract.Ensures(Contract.Result<string>() == null || Contract.Result<string>().Length == str.Length);
             Contract.EndContractBlock();
@@ -3668,7 +3656,7 @@ namespace System
 
         //
         // IConvertible implementation
-        // 
+        //
 
         public TypeCode GetTypeCode()
         {
@@ -3765,29 +3753,29 @@ namespace System
             return Convert.DefaultToType((IConvertible)this, type, provider);
         }
 
-        // Is this a string that can be compared quickly (that is it has only characters > 0x80 
+        // Is this a string that can be compared quickly (that is it has only characters > 0x80
         // and not a - or '
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern bool IsFastSort();
 
         // Is this a string that only contains characters < 0x80.
-        [System.Security.SecurityCritical] // auto-generated
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern bool IsAscii();
 
         // Set extra byte for odd-sized strings that came from interop as BSTR.
-        [System.Security.SecurityCritical]
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern void SetTrailByte(byte data);
 
         // Try to retrieve the extra byte - returns false if not present.
-        [System.Security.SecurityCritical]
+        [SecurityCritical]
         [ResourceExposure(ResourceScope.None)]
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern bool TryGetTrailByte(out byte data);
 
 #if !FEATURE_CORECLR
@@ -3818,8 +3806,8 @@ namespace System
         }
 
         // Copies the source String (byte buffer) to the destination IntPtr memory allocated with len bytes.
-        [System.Security.SecurityCritical] // auto-generated
-        internal unsafe static void InternalCopy(string src, IntPtr dest, int len)
+        [SecurityCritical]
+        internal static unsafe void InternalCopy(string src, IntPtr dest, int len)
         {
             if (len == 0)
                 return;

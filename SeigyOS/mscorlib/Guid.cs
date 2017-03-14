@@ -1,5 +1,4 @@
 using System.Diagnostics.Contracts;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.__Helpers;
@@ -401,22 +400,17 @@ namespace System
             if (format == null || format.Length == 0)
                 format = "D";
 
-            string guidString;
             int offset = 0;
             bool dash = true;
             bool hex = false;
 
             if (format.Length != 1)
-            {
-                // all acceptable format strings are of length 1
-                throw new FormatException(Environment.GetResourceString("Format_InvalidGuidFormatSpecification"));
-            }
+                throw new FormatException(__Resources.GetResourceString(__Resources.Format_InvalidGuidFormatSpecification));
 
+            string guidString;
             char formatCh = format[0];
             if (formatCh == 'D' || formatCh == 'd')
-            {
                 guidString = string.FastAllocateString(36);
-            }
             else if (formatCh == 'N' || formatCh == 'n')
             {
                 guidString = string.FastAllocateString(32);
@@ -462,7 +456,7 @@ namespace System
             }
             else
             {
-                throw new FormatException(Environment.GetResourceString("Format_InvalidGuidFormatSpecification"));
+                throw new FormatException(__Resources.GetResourceString(__Resources.Format_InvalidGuidFormatSpecification));
             }
 
             unsafe
@@ -750,12 +744,8 @@ namespace System
             for (int i = 0; i < guidString.Length; i++)
             {
                 char ch = guidString[i];
-                if (ch >= '0' && ch <= '9')
+                if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'F') || (ch >= 'a' && ch <= 'f'))
                     continue;
-                char upperCaseCh = char.ToUpper(ch, CultureInfo.InvariantCulture);
-                if (upperCaseCh >= 'A' && upperCaseCh <= 'F')
-                    continue;
-
                 result.SetFailure(ParseFailureKind.Format, __Resources.Format_GuidInvalidChar);
                 return false;
             }
@@ -807,21 +797,14 @@ namespace System
             return true;
         }
 
-
-        // Check if it's of the form [{|(]dddddddd-dddd-dddd-dddd-dddddddddddd[}|)]
         private static bool TryParseGuidWithDashes(string guidString, ref GuidResult result)
         {
             int startPos = 0;
-            int temp;
-            long templ;
-            int currentPos = 0;
-
-            // check to see that it's the proper length
             if (guidString[0] == '{')
             {
                 if (guidString.Length != 38 || guidString[37] != '}')
                 {
-                    result.SetFailure(ParseFailureKind.Format, "Format_GuidInvLen");
+                    result.SetFailure(ParseFailureKind.Format, __Resources.Format_GuidInvLen);
                     return false;
                 }
                 startPos = 1;
@@ -830,14 +813,14 @@ namespace System
             {
                 if (guidString.Length != 38 || guidString[37] != ')')
                 {
-                    result.SetFailure(ParseFailureKind.Format, "Format_GuidInvLen");
+                    result.SetFailure(ParseFailureKind.Format, __Resources.Format_GuidInvLen);
                     return false;
                 }
                 startPos = 1;
             }
             else if (guidString.Length != 36)
             {
-                result.SetFailure(ParseFailureKind.Format, "Format_GuidInvLen");
+                result.SetFailure(ParseFailureKind.Format, __Resources.Format_GuidInvLen);
                 return false;
             }
 
@@ -846,49 +829,51 @@ namespace System
                 guidString[18 + startPos] != '-' ||
                 guidString[23 + startPos] != '-')
             {
-                result.SetFailure(ParseFailureKind.Format, "Format_GuidDashes");
+                result.SetFailure(ParseFailureKind.Format, __Resources.Format_GuidDashes);
                 return false;
             }
 
-            currentPos = startPos;
+            int temp;
+            int currentPos = startPos;
             if (!StringToInt(guidString, ref currentPos, 8, ParseNumbers.NoSpace, out temp, ref result))
                 return false;
             result.parsedGuid._a = temp;
-            ++currentPos; //Increment past the '-';
+            ++currentPos;
 
             if (!StringToInt(guidString, ref currentPos, 4, ParseNumbers.NoSpace, out temp, ref result))
                 return false;
             result.parsedGuid._b = (short)temp;
-            ++currentPos; //Increment past the '-';
+            ++currentPos;
 
             if (!StringToInt(guidString, ref currentPos, 4, ParseNumbers.NoSpace, out temp, ref result))
                 return false;
             result.parsedGuid._c = (short)temp;
-            ++currentPos; //Increment past the '-';
+            ++currentPos;
 
             if (!StringToInt(guidString, ref currentPos, 4, ParseNumbers.NoSpace, out temp, ref result))
                 return false;
-            ++currentPos; //Increment past the '-';
+            ++currentPos;
             startPos = currentPos;
 
+            long templ;
             if (!StringToLong(guidString, ref currentPos, ParseNumbers.NoSpace, out templ, ref result))
                 return false;
 
             if (currentPos - startPos != 12)
             {
-                result.SetFailure(ParseFailureKind.Format, "Format_GuidInvLen");
+                result.SetFailure(ParseFailureKind.Format, __Resources.Format_GuidInvLen);
                 return false;
             }
             result.parsedGuid._d = (byte)(temp >> 8);
-            result.parsedGuid._e = (byte)(temp);
+            result.parsedGuid._e = (byte)temp;
             temp = (int)(templ >> 32);
             result.parsedGuid._f = (byte)(temp >> 8);
-            result.parsedGuid._g = (byte)(temp);
-            temp = (int)(templ);
+            result.parsedGuid._g = (byte)temp;
+            temp = (int)templ;
             result.parsedGuid._h = (byte)(temp >> 24);
             result.parsedGuid._i = (byte)(temp >> 16);
             result.parsedGuid._j = (byte)(temp >> 8);
-            result.parsedGuid._k = (byte)(temp);
+            result.parsedGuid._k = (byte)temp;
 
             return true;
         }
@@ -968,7 +953,6 @@ namespace System
             return true;
         }
 
-
         private static string EatAllWhitespace(string str)
         {
             int newLength = 0;
@@ -984,7 +968,8 @@ namespace System
 
         private static bool IsHexPrefix(string str, int i)
         {
-            return str.Length > i + 1 && str[i] == '0' && char.ToLower(str[i + 1], CultureInfo.InvariantCulture) == 'x';
+            return str.Length > i + 1 && str[i] == '0' &&
+                   (str[i + 1] == 'x' || str[i + 1] == 'X');
         }
     }
 }

@@ -40,13 +40,17 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AccessViolationException.cs" />
     <Compile Include="Action.cs" />
     <Compile Include="Activator.cs" />
+    <Compile Include="AggregateException.cs" />
     <Compile Include="AppDomain.cs" />
     <Compile Include="AppDomainInitializer.cs" />
     <Compile Include="AppDomainManager.cs" />
     <Compile Include="AppDomainManagerInitializationOptions.cs" />
     <Compile Include="AppDomainSetup.cs" />
+    <Compile Include="AppDomainUnloadedException.cs" />
+    <Compile Include="ApplicationException.cs" />
     <Compile Include="ArgumentOutOfRangeException.cs" />
     <Compile Include="ArithmeticException.cs" />
     <Compile Include="Array.cs" />
@@ -127,11 +131,13 @@
     <Compile Include="Globalization\NumberStyles.cs" />
     <Compile Include="Globalization\TimeSpanFormat.cs" />
     <Compile Include="Globalization\UnicodeCategory.cs" />
+    <Compile Include="IndexOutOfRangeException.cs" />
     <Compile Include="InvalidCastException.cs" />
     <Compile Include="InvalidOperationException.cs" />
     <Compile Include="Math.cs" />
     <Compile Include="MidpointRounding.cs" />
     <Compile Include="ModuleHandle.cs" />
+    <Compile Include="OutOfMemoryException.cs" />
     <Compile Include="OverflowException.cs" />
     <Compile Include="Predicate.cs" />
     <Compile Include="Reflection\Emit\AssemblyBuilderAccess.cs" />
@@ -549,6 +555,7 @@
     <Compile Include="StringSplitOptions.cs" />
     <Compile Include="SystemException.cs" />
     <Compile Include="Text\StringBuilder.cs" />
+    <Compile Include="Text\StringBuilderCache.cs" />
     <Compile Include="Threading\ApartmentState.cs" />
     <Compile Include="Threading\AsyncFlowControl.cs" />
     <Compile Include="Threading\ContextCallback.cs" />
