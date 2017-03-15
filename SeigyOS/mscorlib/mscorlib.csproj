@@ -55,6 +55,7 @@
     <Compile Include="ArithmeticException.cs" />
     <Compile Include="Array.cs" />
     <Compile Include="ArrayTypeMismatchException.cs" />
+    <Compile Include="BadImageFormatException.cs" />
     <Compile Include="CharEnumerator.cs" />
     <Compile Include="Collections\Generic\IDictionary.cs" />
     <Compile Include="Collections\Generic\IList.cs" />

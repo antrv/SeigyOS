@@ -57,8 +57,7 @@ namespace System
         {
             if (_message == null)
             {
-                if ((_fileName == null) &&
-                    (HResult == System.__HResults.COR_E_EXCEPTION))
+                if (_fileName == null && HResult == __HResults.COR_E_EXCEPTION)
                     _message = Environment.GetResourceString("Arg_BadImageFormatException");
 
                 else
@@ -66,51 +65,40 @@ namespace System
             }
         }
 
-        public string FileName
-        {
-            get
-            {
-                return _fileName;
-            }
-        }
+        public string FileName => _fileName;
 
         public override string ToString()
         {
             string s = GetType().FullName + ": " + Message;
 
-            if (_fileName != null && _fileName.Length != 0)
-                s += Environment.NewLine + Environment.GetResourceString("IO.FileName_Name", _fileName);
+            if (!string.IsNullOrEmpty(_fileName))
+                s += Environment.NewLine + __Resources.GetResourceString(__Resources.IO_FileName_Name, _fileName);
 
             if (InnerException != null)
-                s = s + " ---> " + InnerException.ToString();
+                s = s + " ---> " + InnerException;
 
             if (StackTrace != null)
                 s += Environment.NewLine + StackTrace;
-#if FEATURE_FUSION
+
             try
             {
-                if(FusionLog!=null)
+                if (FusionLog != null)
                 {
-                    if (s==null)
-                        s=" ";
-                    s+=Environment.NewLine;
-                    s+=Environment.NewLine;
-                    s+=FusionLog;
+                    s += Environment.NewLine;
+                    s += Environment.NewLine;
+                    s += FusionLog;
                 }
             }
-            catch(SecurityException)
+            catch (SecurityException)
             {
 
             }
-#endif
             return s;
         }
 
         protected BadImageFormatException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-            // Base class constructor will check info != null.
-
             _fileName = info.GetString("BadImageFormat_FileName");
             try
             {
@@ -125,7 +113,7 @@ namespace System
         private BadImageFormatException(string fileName, string fusionLog, int hResult)
             : base(null)
         {
-            SetErrorCode(hResult);
+            HResult = hResult;
             _fileName = fileName;
             _fusionLog = fusionLog;
             SetMessageField();
